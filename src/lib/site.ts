@@ -13,13 +13,21 @@ export const site = {
     "Joey's is a range of 100% vegetarian flavoured potato crisps: Barbecue Chicken, Smokey Bacon and Prawn Cocktail, made in Tamil Nadu, India.",
 
   /*
-   * PLACEHOLDER - awaiting client. Bracketed on purpose, matching the client's
-   * own `[support email / phone to be added]` in the manufacturing document, so
-   * these read as obviously unfilled rather than as a plausible address someone
-   * might ship. `contactReady` below keeps them from becoming broken links.
+   * Supplied by the client. Filling these flips `contactReady` below to true on
+   * its own, which turns every support address and number on the site from inert
+   * text into a real mailto:/tel: link. Nothing else needed changing.
+   *
+   * The email is stored lowercase; it was given in caps, and while mail servers
+   * treat the domain case-insensitively (and every real-world local part too),
+   * lowercase is what reads as an address rather than as shouting.
+   *
+   * The number is a 10-digit Indian mobile, written with the +91 country code so
+   * it dials from outside India as well. `tel:` strips the spaces, so the link
+   * resolves to +919600616019.
    */
-  supportEmail: "[EMAIL]",
-  supportPhone: "[PHONE]",
+  supportEmail: "customer.support@ritaandjosfoods.com",
+  supportPhone: "+91 96006 16019",
+  supportHours: "9.00 am to 6.00 pm",
   url: "https://joeys.example",
 
   /*
@@ -41,12 +49,20 @@ export const site = {
     links: [] as { label: string; href: string }[],
   },
 
-  social: [
-    { label: "Instagram", href: "#" }, // PLACEHOLDER
-    { label: "Facebook", href: "#" }, // PLACEHOLDER
-    { label: "X", href: "#" }, // PLACEHOLDER
-    { label: "LinkedIn", href: "#" }, // PLACEHOLDER
-  ],
+  /*
+   * Hidden for now - the accounts do not exist yet, so the footer column was
+   * four links to "#". Set `enabled: true` and fill in the hrefs and the column
+   * comes back on its own; the footer grid adapts to it. Same pattern as `buy`.
+   */
+  social: {
+    enabled: false,
+    links: [
+      { label: "Instagram", href: "#" }, // PLACEHOLDER
+      { label: "Facebook", href: "#" }, // PLACEHOLDER
+      { label: "X", href: "#" }, // PLACEHOLDER
+      { label: "LinkedIn", href: "#" }, // PLACEHOLDER
+    ],
+  },
 
   manufacturer: {
     name: "Podaran Snacks",
@@ -77,6 +93,9 @@ export const site = {
  * False while the contact details are still placeholders. Anything that would
  * otherwise render `mailto:[EMAIL]` checks this and falls back to plain text or
  * to the contact form instead of shipping a dead link.
+ *
+ * Now true - the real address and number are in. The guard stays because it costs
+ * nothing and catches a regression if either value is ever blanked back out.
  */
 export const contactReady =
   !site.supportEmail.startsWith("[") && !site.supportPhone.startsWith("[");

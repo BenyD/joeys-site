@@ -150,6 +150,14 @@ export default function ContactPage() {
                 kind="phone"
                 className="head mt-2 block text-[clamp(1.15rem,3.4vw,1.5rem)] text-gold transition-colors duration-[180ms] hover:text-cream"
               />
+              {/*
+                The hours belong to the phone, not the email, so they sit under
+                the number and are worded as such. Without this, someone rings at
+                nine at night and reads the silence as the brand ignoring them.
+              */}
+              <p className="mt-2.5 text-[13px] text-cream/45">
+                Calls answered {site.supportHours}
+              </p>
             </div>
             <div>
               <p className="eyebrow uppercase text-cream/40">Marketed by</p>

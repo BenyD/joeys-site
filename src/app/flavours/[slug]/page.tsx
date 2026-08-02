@@ -64,8 +64,8 @@ export default async function FlavourPage({ params }: { params: Promise<{ slug: 
               id="flavour-hero-pack"
               src={flavour.pack}
               alt={`Joey's ${flavour.name} flavoured potato crisps, ${site.pack.weight} pack`}
-              width={751}
-              height={1000}
+              width={612}
+              height={853}
               priority
               className="relative w-[62vw] max-w-[380px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.6)] lg:w-[68%]"
             />

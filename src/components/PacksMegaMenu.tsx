@@ -62,8 +62,8 @@ export function PacksMegaMenu({
                     src={f.pack}
                     alt=""
                     aria-hidden
-                    width={751}
-                    height={1000}
+                    width={612}
+                    height={853}
                     className="w-[70%] drop-shadow-[0_10px_16px_rgba(0,0,0,0.5)] transition-transform duration-[260ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:-translate-y-1"
                   />
                 </span>

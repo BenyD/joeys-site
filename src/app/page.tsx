@@ -49,19 +49,18 @@ const pillars: { icon: Mark; title: string; body: string }[] = [
 /*
  * Ingredient cards.
  *
- * ⚠ UNVERIFIED CLAIMS - do not launch without checking these against the back
- * of the pack. Nothing the client supplied (the flavour write-ups, the pack
- * artwork, the manufacturing page) contains an ingredient declaration. The
- * words "sunflower" and "sea salt" appear nowhere in any of it; both were
- * assumed while building this row and could easily be palm or rice bran oil and
- * plain iodised salt. Ingredient declarations are regulated, so these two
- * labels (and the sunflower photograph that follows the oil one) need
- * confirming or correcting before this page goes anywhere near production.
+ * ⚠ ONE UNVERIFIED CLAIM LEFT - "Sea Salt". Nothing the client supplied (the
+ * flavour write-ups, the pack artwork, the manufacturing page) contains an
+ * ingredient declaration, and the words "sea salt" appear nowhere in any of it;
+ * it was assumed while building this row and could easily be plain iodised
+ * salt. Ingredient declarations are regulated, so that label needs confirming
+ * or correcting before this page goes anywhere near production.
  *
- * Verified and safe: "Potatoes" (pack reads "Potato Chips"), "Seasoning" (the
- * manufacturing page states the flavour is all in the seasoning), and
- * "100% Vegetarian" (stated on pack, in the write-ups, and on the
- * manufacturing page).
+ * Verified and safe: "Potatoes" (pack reads "Potato Chips"), "Refined Palmolein
+ * Oil" (confirmed by the client, correcting an earlier assumption of sunflower
+ * oil), "Seasoning" (the manufacturing page states the flavour is all in the
+ * seasoning), and "100% Vegetarian" (stated on pack, in the write-ups, and on
+ * the manufacturing page).
  *
  * `image` is the slot for photography. Drop a square shot into
  * /public/ingredients and set the path; the illustration is the fallback and
@@ -70,7 +69,7 @@ const pillars: { icon: Mark; title: string; body: string }[] = [
  */
 const ingredients: { icon: Mark; label: string; image?: string }[] = [
   { icon: MarkPotato, label: "Potatoes", image: "/ingredients/potatoes.jpg" },
-  { icon: MarkOil, label: "Sunflower Oil", image: "/ingredients/oil.jpg" },
+  { icon: MarkOil, label: "Refined Palmolein Oil", image: "/ingredients/oil.jpg" },
   { icon: MarkSalt, label: "Sea Salt", image: "/ingredients/salt.jpg" },
   { icon: MarkSeasoning, label: "Seasoning", image: "/ingredients/seasoning.jpg" },
   // Closes the row on the certification rather than a prohibition sign. Same
@@ -162,8 +161,8 @@ export default function Home() {
                   key={f.slug}
                   src={f.pack}
                   alt={`Joey's ${f.name} crisps`}
-                  width={751}
-                  height={1000}
+                  width={612}
+                  height={853}
                   priority={i === 1}
                   className={
                       i === 1
@@ -256,8 +255,8 @@ export default function Home() {
               <Image
                 src={bbq.pack}
                 alt={`Joey's ${bbq.name} crisps pack`}
-                width={751}
-                height={1000}
+                width={612}
+                height={853}
                 className="relative drop-shadow-[0_22px_36px_rgba(59,13,20,0.4)]"
               />
             </Reveal>
@@ -398,8 +397,8 @@ export default function Home() {
           src={bacon.pack}
           alt=""
           aria-hidden
-          width={751}
-          height={1000}
+          width={612}
+          height={853}
           /* breaks the left edge only. Letting it drop past the bottom put a
              pack across the marquee strip below, which reads as a mistake. */
           className="pointer-events-none absolute -left-10 bottom-4 hidden w-[150px] -rotate-[14deg] drop-shadow-[0_20px_36px_rgba(0,0,0,0.5)] lg:block xl:w-[172px]"
@@ -477,8 +476,8 @@ export default function Home() {
           src={prawn.pack}
           alt=""
           aria-hidden
-          width={751}
-          height={1000}
+          width={612}
+          height={853}
           /* breaks the left edge, not the bottom one: dropping it into the dark
              notify strip below made the pack look like it had fallen out of the
              layout. The page frame clips the side, which is the intended read. */
@@ -488,8 +487,8 @@ export default function Home() {
           src={bacon.pack}
           alt=""
           aria-hidden
-          width={751}
-          height={1000}
+          width={612}
+          height={853}
           className="pointer-events-none absolute -top-14 right-[4%] z-10 hidden w-[150px] rotate-[12deg] drop-shadow-[0_18px_34px_rgba(59,13,20,0.45)] lg:block xl:w-[172px]"
         />
 

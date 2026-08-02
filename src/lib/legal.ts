@@ -105,7 +105,7 @@ export const terms: LegalDoc = {
       id: "contact",
       heading: "Contact",
       body: [
-        `For any question about these terms, or about a specific pack, write to ${site.supportEmail} or call ${site.supportPhone}. If you are asking about a pack, please include the batch code printed on the back so we can trace it.`,
+        `For any question about these terms, or about a specific pack, write to ${site.supportEmail} or call ${site.supportPhone} between ${site.supportHours}. If you are asking about a pack, please include the batch code printed on the back so we can trace it.`,
       ],
     },
   ],

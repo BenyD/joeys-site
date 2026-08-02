@@ -45,7 +45,13 @@ export function Footer() {
     <>
       {/* ── main footer ── */}
       <footer className="border-t border-cream/10 bg-ink">
-        <div className="mx-auto grid max-w-[1240px] grid-cols-2 gap-x-6 gap-y-10 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[1.4fr_repeat(3,1fr)_1fr]">
+        <div
+          className={`mx-auto grid max-w-[1240px] grid-cols-2 gap-x-6 gap-y-10 px-5 py-12 sm:px-8 sm:py-14 ${
+            site.social.enabled
+              ? "lg:grid-cols-[1.4fr_repeat(3,1fr)_1fr]"
+              : "lg:grid-cols-[1.4fr_repeat(3,1fr)]"
+          }`}
+        >
           <div className="col-span-2 lg:col-span-1">
             <Image
               src="/joeys-logo.png"
@@ -77,20 +83,22 @@ export function Footer() {
             </div>
           ))}
 
-          <div>
-            <h3 className="head mb-4 text-[13px] uppercase tracking-[0.07em] text-cream">
-              Social
-            </h3>
-            <ul className="space-y-3 sm:space-y-2.5">
-              {site.social.map((s) => (
-                <li key={s.label}>
-                  <a href={s.href} className={linkCls}>
-                    {s.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {site.social.enabled && (
+            <div>
+              <h3 className="head mb-4 text-[13px] uppercase tracking-[0.07em] text-cream">
+                Social
+              </h3>
+              <ul className="space-y-3 sm:space-y-2.5">
+                {site.social.links.map((s) => (
+                  <li key={s.label}>
+                    <a href={s.href} className={linkCls}>
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/*
