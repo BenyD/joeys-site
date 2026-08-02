@@ -65,7 +65,15 @@ export const site = {
   },
 
   manufacturer: {
-    name: "Podaran Snacks",
+    /*
+     * The "A - " prefix is the facility letter, not part of the company name.
+     * It exists so a second manufacturer can join as "B - ..." without every
+     * reference to this one having to be rewritten to disambiguate. Kept inside
+     * the name because every place the facility is shown wants it: the footer
+     * declaration, the facility card, and the batch key on /made all read from
+     * this single value.
+     */
+    name: "A - Podaran Snacks",
     locality: "Kangayam, Tirupur District",
     region: "Tamil Nadu, India",
     address: [
