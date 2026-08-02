@@ -27,9 +27,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
+    // No id="top" on <html> on purpose. With one, "#top" resolves to an element
+    // - and that element is the root, whose box already encloses the viewport,
+    // so scrolling it into view is ambiguous at best. Without one, the HTML
+    // spec's own rule applies: a "top" fragment matching nothing means the top
+    // of the document. Well defined everywhere, and it is what the footer link
+    // falls back to before JS loads.
     <html
       lang="en"
-      id="top"
       className={`${anton.variable} ${bricolage.variable} ${figtree.variable} h-full antialiased`}
     >
       <head>

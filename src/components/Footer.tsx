@@ -2,8 +2,7 @@ import Image from "next/image";
 import { TLink } from "./ViewTransitions";
 import { flavours } from "@/lib/flavours";
 import { site } from "@/lib/site";
-import { ContactLink } from "./ContactLink";
-import { CaretDoubleUp } from "./icons";
+import { BackToTop } from "./BackToTop";
 
 const columns = [
   {
@@ -138,13 +137,7 @@ export function Footer() {
             <p className="order-last text-center sm:order-none">
               © {new Date().getFullYear()} {site.legalName}.
             </p>
-            <a href="#top" className="group/t flex items-center gap-1.5 hover:text-gold">
-              Back to top
-              <CaretDoubleUp
-                weight="bold"
-                className="h-3.5 w-3.5 transition-transform duration-[180ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/t:-translate-y-0.5"
-              />
-            </a>
+            <BackToTop className="group/t flex items-center gap-1.5 hover:text-gold" />
           </div>
         </div>
       </footer>

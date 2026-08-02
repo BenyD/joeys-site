@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ComponentProps, type MouseEvent } from "react";
+import { scrollToHash } from "@/lib/scroll";
 
 /*
  * View transitions against the native browser API.
@@ -139,8 +140,27 @@ export function TLink({
     // Leave modified clicks, new tabs and in-page anchors to the browser.
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     // mailto:, tel: and anything off-site are not route changes.
-    if (!href.startsWith("/")) return;
-    const target = href.split("#")[0] || pathname;
+    if (!href.startsWith("/") && !href.startsWith("#")) return;
+
+    const [path, hash] = [href.split("#")[0], href.split("#")[1]];
+    const target = path || pathname;
+
+    /*
+     * Anchor on the page you are already on, pointing at the hash the URL
+     * already carries. Nothing downstream will move: the router sees the same
+     * URL and skips the navigation, and no hashchange fires for the browser to
+     * act on. So scroll it here.
+     *
+     * Deliberately narrow. When the hash actually changes the existing path
+     * already works, and taking that over too would mean owning scroll
+     * restoration and history for every anchor on the site.
+     */
+    if (hash !== undefined && target === pathname && window.location.hash === `#${hash}`) {
+      e.preventDefault();
+      scrollToHash(hash);
+      return;
+    }
+
     if (target === pathname) return;
     if (!document.startViewTransition) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
