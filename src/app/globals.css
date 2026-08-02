@@ -1,0 +1,357 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Joey's palette, mapped onto the reference layout's colour roles ── */
+  --color-cream: #fbf3e4; /* page surface */
+  --color-cream-deep: #f5e8cf; /* alt surface */
+  --color-coral: #e0532e; /* brand / primary CTA */
+  --color-coral-dark: #c1401f;
+  --color-gold: #f5b921; /* secondary accent, marquee, panels */
+  --color-gold-deep: #e0a30d;
+  --color-ink: #3b0d14; /* nav, dark bands, body copy */
+  /* Frame matches the nav exactly: the card's rounded corners then vanish where
+     they meet the nav and the footer, and only read against the cream middle. */
+  --color-frame: #3b0d14;
+  --color-ink-soft: #6b4238;
+
+  /* Flavour themes, pulled off the packs */
+  --color-bbq: #5b1220;
+  --color-bbq-band: #c8104c;
+  --color-bacon: #141c3a;
+  --color-bacon-band: #cf1348;
+  --color-prawn: #3d1030;
+  --color-prawn-band: #f0a81c;
+
+  /* Testimonial card tints */
+  --color-tint-gold: #f7c94a;
+  --color-tint-pink: #ef8fa6;
+  --color-tint-coral: #f5a183;
+  --color-tint-plum: #c9a3d4;
+
+  --font-display: var(--font-anton), "Arial Narrow", sans-serif;
+  --font-head: var(--font-bricolage), system-ui, sans-serif;
+  --font-body: var(--font-figtree), system-ui, sans-serif;
+}
+
+/*
+ * ── Motion tokens ──
+ * Built-in CSS easings are too weak to read as intentional. These are the
+ * stronger curves; every transition below pulls from them rather than
+ * inventing its own.
+ */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --dur-press: 110ms; /* button press feedback */
+  --dur-hover: 180ms; /* hover / colour change */
+  --dur-pop: 220ms; /* dropdowns, small surfaces */
+  --dur-reveal: 620ms; /* scroll entrances, seen once */
+
+  /* view transitions */
+  --duration-exit: 150ms;
+  --duration-enter: 210ms;
+  --duration-move: 420ms;
+
+  /* dropdown (transitions.dev) */
+  --dropdown-open-dur: 220ms;
+  --dropdown-close-dur: 140ms;
+  --dropdown-pre-scale: 0.97;
+  --dropdown-closing-scale: 0.99;
+  --dropdown-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--color-frame);
+}
+
+body {
+  background: var(--color-frame);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+/* Display headings: heavy, tight, slightly optically tuned like the reference */
+.display {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  line-height: 0.94;
+  font-weight: 400;
+}
+
+.head {
+  font-family: var(--font-head);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.eyebrow {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+}
+
+/* ── Press feedback: the interface should visibly hear the click ── */
+.pressable {
+  transition:
+    transform var(--dur-press) var(--ease-out),
+    background-color var(--dur-hover) ease,
+    color var(--dur-hover) ease,
+    border-color var(--dur-hover) ease;
+}
+.pressable:active {
+  transform: scale(0.97);
+}
+
+/* ── Scroll reveal ──
+   Sections are seen once per visit, so a real entrance is warranted.
+   Compositor-only properties, ease-out, well under a second. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(5px);
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    transform var(--dur-reveal) var(--ease-out),
+    filter var(--dur-reveal) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: transform, opacity;
+}
+[data-reveal="revealed"] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  will-change: auto;
+}
+
+/* ── Menu dropdown (transitions.dev), origin-aware so it grows from its trigger ── */
+.t-dropdown {
+  transform-origin: top left;
+  transform: scale(var(--dropdown-pre-scale));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--dropdown-open-dur) var(--dropdown-ease),
+    opacity var(--dropdown-open-dur) var(--dropdown-ease);
+  will-change: transform, opacity;
+}
+.t-dropdown[data-origin="top-right"] {
+  transform-origin: top right;
+}
+.t-dropdown[data-origin="top-center"] {
+  transform-origin: top center;
+}
+.t-dropdown[data-origin="bottom-left"] {
+  transform-origin: bottom left;
+}
+.t-dropdown[data-origin="bottom-center"] {
+  transform-origin: bottom center;
+}
+.t-dropdown[data-origin="bottom-right"] {
+  transform-origin: bottom right;
+}
+
+.t-dropdown.is-open {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+.t-dropdown.is-closing {
+  transform: scale(var(--dropdown-closing-scale));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--dropdown-close-dur) var(--dropdown-ease),
+    opacity var(--dropdown-close-dur) var(--dropdown-ease);
+}
+
+/* ── Marquee ── */
+@keyframes joeys-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.marquee-track {
+  animation: joeys-marquee var(--marquee-duration, 32s) linear infinite;
+  will-change: transform;
+}
+.marquee-reverse {
+  animation-direction: reverse;
+}
+
+/* ── Concentric ripple, the signature pack device ── */
+.ripple {
+  background-image: repeating-radial-gradient(
+    ellipse 62% 48% at 50% 34%,
+    rgba(255, 255, 255, 0.075) 0px,
+    rgba(255, 255, 255, 0.075) 1.5px,
+    transparent 1.5px,
+    transparent 26px
+  );
+}
+
+/* Horizontal snap rails.
+   `overflow-x: auto` forces overflow-y to compute to auto as well, so anything
+   that lifts on hover gets its top edge clipped by the scroll box. The padding
+   is the room that lift needs; do not remove it. */
+.rail {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+.rail > * {
+  scroll-snap-align: center;
+}
+
+.rail:focus-visible {
+  outline: 2px solid var(--color-coral);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* ═══════════════════════════════════════════════════
+   View transitions
+   Recipes adapted from the vercel-labs react-view-transitions skill, keyed off
+   `html[data-vt]` because these run against the native API rather than React's
+   <ViewTransition>. See src/components/ViewTransitions.tsx.
+   ═══════════════════════════════════════════════════ */
+
+@keyframes vt-fade {
+  from {
+    filter: blur(3px);
+    opacity: 0;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vt-slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+/* Going deeper: the old page leaves left, the new one arrives from the right. */
+html[data-vt="forward"]::view-transition-old(root) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-exit) ease-in both vt-fade reverse,
+    var(--duration-move) var(--ease-in-out) both vt-slide reverse;
+}
+html[data-vt="forward"]::view-transition-new(root) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-enter) var(--ease-out) var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-in-out) both vt-slide;
+}
+
+/* Coming back up: exactly mirrored, so the return path matches the way out. */
+html[data-vt="back"]::view-transition-old(root) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-exit) ease-in both vt-fade reverse,
+    var(--duration-move) var(--ease-in-out) both vt-slide reverse;
+}
+html[data-vt="back"]::view-transition-new(root) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-enter) var(--ease-out) var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-in-out) both vt-slide;
+}
+
+/* Siblings at the same depth: cross-fade only, no direction implied. */
+html[data-vt="lateral"]::view-transition-old(root) {
+  animation: var(--duration-exit) ease-in both vt-fade reverse;
+}
+html[data-vt="lateral"]::view-transition-new(root) {
+  animation: var(--duration-enter) var(--ease-out) var(--duration-exit) both vt-fade;
+}
+
+/*
+ * Shared element morph.
+ *
+ * The name is claimed at click time and released when the transition finishes,
+ * so it is never written into markup. See ViewTransitions.tsx for why: a name
+ * must be unique within each captured state, and permanent per-pack names make
+ * that impossible to guarantee once two pages hold the same pack.
+ *
+ * object-fit matters here. Source and destination are different shapes, a
+ * circular crop of crisps against a tall bag, and the default `fill` squashes
+ * one into the other's box for the length of the move. `cover` keeps both
+ * reading as themselves while the frame changes around them, and the blur
+ * through the middle covers the rest.
+ */
+::view-transition-group(flavour-morph) {
+  animation-duration: var(--duration-move);
+  animation-timing-function: var(--ease-in-out);
+  z-index: 20;
+}
+::view-transition-image-pair(flavour-morph) {
+  animation-name: vt-via-blur;
+}
+::view-transition-old(flavour-morph),
+::view-transition-new(flavour-morph) {
+  object-fit: cover;
+  height: 100%;
+}
+@keyframes vt-via-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+/* The nav holds still while pages slide underneath it. */
+::view-transition-group(persistent-nav) {
+  z-index: 100;
+}
+::view-transition-old(persistent-nav),
+::view-transition-new(persistent-nav) {
+  animation: none;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .marquee-track {
+    animation: none;
+  }
+  .t-dropdown {
+    transition: none !important;
+  }
+  .pressable {
+    transition: none;
+  }
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
