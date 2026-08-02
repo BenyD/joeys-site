@@ -201,12 +201,26 @@ body {
 /* Horizontal snap rails.
    `overflow-x: auto` forces overflow-y to compute to auto as well, so anything
    that lifts on hover gets its top edge clipped by the scroll box. The padding
-   is the room that lift needs; do not remove it. */
+   is the room that lift needs; do not remove it.
+
+   overflow-y is then pinned to hidden, because that forced `auto` was making
+   every rail a short vertical scroller. The reveal entrance offsets each card by
+   translateY(16px), a transformed box still counts toward scrollable overflow,
+   and 16px of offset against 10px of padding left ~6px of vertical scroll inside
+   a row that should only ever move sideways. The cost was that a wheel over any
+   rail spent those 6px scrolling the rail before the page moved at all, which
+   reads as the page catching. Nothing is lost visually: that 6px was already
+   out of sight unless you deliberately scrolled the rail down to find it. */
 .rail {
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
+  /* hidden, not clip. clip would stop this being a scroll box on the y axis at
+     all, but it is not available here: when the other axis is a scrolling
+     value, clip computes to hidden anyway. Verified - the rule ships as clip and
+     the browser reports hidden. */
+  overflow-y: hidden;
   padding-top: 10px;
   padding-bottom: 10px;
 }
