@@ -198,7 +198,7 @@ export default function Home() {
               </Reveal>
 
               <Reveal as="h1" delay={70} className="display max-w-[10ch] text-[clamp(2.5rem,10vw,4.4rem)] text-ink">
-                Pub legends.
+                Legendary flavours.
                 <br />
                 Now <Accent>100%</Accent>
                 <br />
