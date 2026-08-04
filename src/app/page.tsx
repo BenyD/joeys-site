@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { TLink } from "@/components/ViewTransitions";
 import { Doodles } from "@/components/Doodles";
@@ -23,6 +24,10 @@ import {
 } from "@/components/marks";
 import { flavours } from "@/lib/flavours";
 import { site } from "@/lib/site";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const pillars: { icon: Mark; title: string; body: string }[] = [
   {
@@ -162,7 +167,7 @@ export default function Home() {
               width={900}
               height={642}
               priority
-              className="neon-flicker relative mt-12 w-[112px] drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:mt-10 sm:w-[150px]"
+              className="neon-flicker relative mt-12 w-[136px] drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:mt-10 sm:w-[184px]"
             />
 
             <div className="relative -mb-4 flex w-full items-end justify-center pt-4">

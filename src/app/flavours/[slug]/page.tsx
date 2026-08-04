@@ -10,6 +10,7 @@ import { Reveal } from "@/components/Reveal";
 import { StatRow } from "@/components/StatRow";
 import { ArrowButton, Pill } from "@/components/ui";
 import { CaretLeft } from "@/components/icons";
+import { JsonLd } from "@/components/JsonLd";
 import { flavours, getFlavour } from "@/lib/flavours";
 import { site } from "@/lib/site";
 
@@ -25,9 +26,16 @@ export async function generateMetadata({
   const { slug } = await params;
   const flavour = getFlavour(slug);
   if (!flavour) return {};
+  const description = `${flavour.name} flavoured potato crisps — ${flavour.strap} 100% vegetarian, ${site.pack.weight}, ${site.pack.mrp}. One of Joey's three legendary flavours, made in India.`;
   return {
-    title: flavour.name,
-    description: `${flavour.strap} ${flavour.name} flavoured potato crisps from Joey's. ${site.pack.weight}, ${site.pack.mrp}, 100% vegetarian.`,
+    title: `${flavour.name} Crisps`,
+    description,
+    alternates: { canonical: `/flavours/${flavour.slug}` },
+    openGraph: {
+      title: `${flavour.name} Crisps | ${site.name}`,
+      description,
+      images: [{ url: flavour.pack, width: 612, height: 853, alt: `Joey's ${flavour.name} crisps pack` }],
+    },
   };
 }
 
@@ -39,8 +47,47 @@ export default async function FlavourPage({ params }: { params: Promise<{ slug: 
   const others = flavours.filter((f) => f.slug !== flavour.slug);
   const [beatOne, ...restBeats] = flavour.strap.split(" ");
 
+  /* Product node for answer engines: every claim here is printed on the pack
+     or stated on this page. The offer carries the printed MRP; there is no
+     online checkout, so the offer URL is this page. */
+  const productLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `Joey's ${flavour.name} Flavoured Potato Crisps`,
+    image: `${site.url}${flavour.pack}`,
+    description: flavour.copy,
+    brand: { "@type": "Brand", name: site.name },
+    manufacturer: { "@id": `${site.url}/#organization` },
+    countryOfOrigin: "IN",
+    suitableForDiet: "https://schema.org/VegetarianDiet",
+    weight: { "@type": "QuantitativeValue", value: 42.5, unitText: "g" },
+    offers: {
+      "@type": "Offer",
+      price: 25,
+      priceCurrency: "INR",
+      availability: "https://schema.org/InStock",
+      url: `${site.url}/flavours/${flavour.slug}`,
+    },
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: `${flavour.name} Crisps`,
+        item: `${site.url}/flavours/${flavour.slug}`,
+      },
+    ],
+  };
+
   return (
     <>
+      <JsonLd data={productLd} />
+      <JsonLd data={breadcrumbLd} />
       {/* ═══ HERO ═══ */}
       <section className="px-2.5 pb-2.5 pt-2.5 sm:px-4 sm:pb-4 sm:pt-4">
         <div className="grid gap-2.5 sm:gap-4 lg:grid-cols-2">

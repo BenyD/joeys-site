@@ -10,6 +10,7 @@ import { contactReady, site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Contact",
   description: `Get in touch with ${site.legalName} about a pack, about stocking ${site.name}, or about press and partnerships.`,
+  alternates: { canonical: "/contact" },
 };
 
 /**

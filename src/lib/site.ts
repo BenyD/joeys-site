@@ -28,7 +28,7 @@ export const site = {
   supportEmail: "customer.support@ritaandjosfoods.com",
   supportPhone: "+91 96006 16019",
   supportHours: "9.00 am to 6.00 pm",
-  url: "https://joeys.example",
+  url: "https://ritaandjosfoods.com",
 
   /*
    * PLACEHOLDER - the contact form has nowhere to POST yet.

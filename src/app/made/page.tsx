@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "How it's made",
   description:
     "Every pack of Joey's is manufactured at a licensed, audited food processing facility in Tamil Nadu. Facility details, FSSAI licence and how to read your batch code.",
+  alternates: { canonical: "/made" },
 };
 
 const { manufacturer: mfr } = site;
