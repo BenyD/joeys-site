@@ -106,10 +106,21 @@ export function PackLanding() {
         return;
       }
 
-      /* the scroll-derived target; once landed it is exactly the slot rect */
+      /* parked: the real slot element owns the pixels now, and it scrolls with
+         the page on its own. Chasing its viewport rect from here would re-enter
+         flight on every scrolled frame and flicker the clone over the cycling
+         stack - nothing to do until the un-land threshold is crossed. */
+      if (isLanded && settled) return;
+
+      /* the scroll-derived target; once landed it is exactly the slot rect.
+         The follower runs in DOCUMENT coordinates: scroll applies to the clone
+         1:1 (no swimming against fast scrolls), easing shapes only the actual
+         travel along the page, and convergence is scroll-independent. */
+      const sx = window.scrollX;
+      const sy = window.scrollY;
       const q = easeInOut(isLanded ? 1 : p);
-      const tx = s.left + (t.left + (t.width - s.width) / 2 - s.left) * q;
-      const ty = s.top + (t.top + (t.height - s.height) / 2 - s.top) * q;
+      const tx = s.left + (t.left + (t.width - s.width) / 2 - s.left) * q + sx;
+      const ty = s.top + (t.top + (t.height - s.height) / 2 - s.top) * q + sy;
       const tk = 1 + (t.width / s.width - 1) * q;
       /* a lean into the travel, gone again by touchdown */
       const tr = isLanded ? 0 : Math.sin(p * Math.PI) * -7;
@@ -151,7 +162,7 @@ export function PackLanding() {
       hero.style.opacity = "0";
       slot.style.opacity = "0";
       fly.style.width = `${s.width}px`;
-      fly.style.transform = `translate3d(${cur.x}px, ${cur.y}px, 0) rotate(${cur.r}deg) scale(${cur.k})`;
+      fly.style.transform = `translate3d(${cur.x - sx}px, ${cur.y - sy}px, 0) rotate(${cur.r}deg) scale(${cur.k})`;
       fly.style.opacity = "1";
     };
     raf = requestAnimationFrame(update);
