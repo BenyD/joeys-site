@@ -40,7 +40,9 @@ export function LegalToc({ sections }: { sections: LegalSection[] }) {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(measure);
     };
-    measure();
+    /* first measure rides a frame like every later one, keeping the state
+       write out of the synchronous effect body */
+    frame = requestAnimationFrame(measure);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {

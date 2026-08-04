@@ -34,9 +34,14 @@ export function ContactForm() {
   // Arriving from a route card, e.g. /contact#stockists, should preselect the
   // matching topic rather than making the visitor pick it a second time.
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "");
-    const match = TOPICS.find((t) => t.anchor && t.anchor === hash);
-    if (match) setTopic(match.value);
+    /* deferred a frame so the state write is not synchronous in the effect
+       body (react-hooks/set-state-in-effect); paint has not happened yet */
+    const raf = requestAnimationFrame(() => {
+      const hash = window.location.hash.replace("#", "");
+      const match = TOPICS.find((t) => t.anchor && t.anchor === hash);
+      if (match) setTopic(match.value);
+    });
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
