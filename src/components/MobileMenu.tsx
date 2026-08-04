@@ -91,15 +91,20 @@ export function MobileMenu({
                   className="block shrink-0 rounded-full p-[3px]"
                   style={{ background: f.ring }}
                 >
-                  <Image
-                    data-morph
-                    src={f.disc}
-                    alt=""
-                    aria-hidden
-                    width={500}
-                    height={500}
-                    className="h-14 w-14 rounded-full object-cover"
-                  />
+                  <span
+                    className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full"
+                    style={{ background: f.dishBg }}
+                  >
+                    <Image
+                      data-morph
+                      src={f.dish}
+                      alt=""
+                      aria-hidden
+                      width={500}
+                      height={500}
+                      className="h-12 w-12 object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.45)]"
+                    />
+                  </span>
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="head block text-[16px] text-cream">{f.name}</span>

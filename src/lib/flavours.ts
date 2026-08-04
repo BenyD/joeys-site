@@ -13,6 +13,10 @@ export type Flavour = {
   bandInk: string;
   pack: string;
   disc: string;
+  /** Chips-and-dish composition shot (transparent PNG). */
+  dish: string;
+  /** Circular wash behind `dish`, echoing the flavour page hero. */
+  dishBg: string;
   ring: string;
 };
 
@@ -28,6 +32,8 @@ export const flavours: Flavour[] = [
     bandInk: "#ffffff",
     pack: "/packs/barbecue-chicken.png",
     disc: "/packs/disc-barbecue-chicken.png",
+    dish: "/packs/dish-barbecue-chicken.png",
+    dishBg: "radial-gradient(ellipse at 50% 30%, rgb(127 70 81) 0%, #5b1220 62%, #16060c 100%)",
     ring: "#e0532e",
   },
   {
@@ -41,6 +47,8 @@ export const flavours: Flavour[] = [
     bandInk: "#ffffff",
     pack: "/packs/smokey-bacon.png",
     disc: "/packs/disc-smokey-bacon.png",
+    dish: "/packs/dish-smokey-bacon.png",
+    dishBg: "radial-gradient(ellipse at 50% 30%, rgb(72 78 101) 0%, #141c3a 62%, #16060c 100%)",
     ring: "#f5b921",
   },
   {
@@ -54,6 +62,8 @@ export const flavours: Flavour[] = [
     bandInk: "#3b0d14",
     pack: "/packs/prawn-cocktail.png",
     disc: "/packs/disc-prawn-cocktail.png",
+    dish: "/packs/dish-prawn-cocktail.png",
+    dishBg: "radial-gradient(ellipse at 50% 30%, rgb(104 69 94) 0%, #3d1030 62%, #16060c 100%)",
     ring: "#ef8fa6",
   },
 ];

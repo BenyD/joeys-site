@@ -296,14 +296,19 @@ export default function Home() {
                     className="block rounded-full p-[7px] transition-transform duration-[240ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:-translate-y-1.5"
                     style={{ background: f.ring }}
                   >
-                    <Image
-                      data-morph
-                      src={f.disc}
-                      alt={`Joey's ${f.name} crisps`}
-                      width={500}
-                      height={500}
-                      className="h-[176px] w-[176px] rounded-full object-cover sm:h-[246px] sm:w-[246px]"
-                    />
+                    <span
+                      className="flex h-[176px] w-[176px] items-center justify-center overflow-hidden rounded-full sm:h-[246px] sm:w-[246px]"
+                      style={{ background: f.dishBg }}
+                    >
+                      <Image
+                        data-morph
+                        src={f.dish}
+                        alt={`Joey's ${f.name} crisps`}
+                        width={500}
+                        height={500}
+                        className="h-[148px] w-[148px] object-contain drop-shadow-[0_16px_24px_rgba(0,0,0,0.5)] transition-transform duration-[240ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.04] sm:h-[206px] sm:w-[206px]"
+                      />
+                    </span>
                   </span>
                   <span className="head mt-5 flex items-center gap-1.5 border-b-2 border-transparent pb-1 text-[15px] text-cream transition-colors duration-[180ms] group-hover:border-gold group-hover:text-gold sm:text-[17px]">
                     {f.name}

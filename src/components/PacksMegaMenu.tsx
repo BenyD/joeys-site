@@ -54,7 +54,10 @@ export function PacksMegaMenu({
                 <span
                   className="ripple relative grid h-[118px] w-[94px] shrink-0 place-items-center overflow-hidden rounded-[11px]"
                   style={{
-                    background: `radial-gradient(ellipse at 50% 28%, ${f.ring}33 0%, ${f.base} 55%, #1b0710 100%)`,
+                    /* Dark bag on a dark tile needs a rim light: one warm
+                       tungsten spotlight (same as the neon logo) over each
+                       flavour's own base colour. */
+                    background: `radial-gradient(circle at 50% 30%, #ffedc9 0%, rgba(247,183,86,0.5) 42%, ${f.base} 82%, #1b0710 100%)`,
                   }}
                 >
                   <Image
@@ -64,7 +67,8 @@ export function PacksMegaMenu({
                     aria-hidden
                     width={612}
                     height={853}
-                    className="w-[70%] drop-shadow-[0_10px_16px_rgba(0,0,0,0.5)] transition-transform duration-[260ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:-translate-y-1"
+                    className="w-[66%] transition-transform duration-[260ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:-translate-y-1"
+                    style={{ filter: "drop-shadow(0 10px 16px rgba(0,0,0,0.5)) drop-shadow(0 0 14px rgba(255,214,140,0.6))" }}
                   />
                 </span>
 
