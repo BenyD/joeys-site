@@ -63,6 +63,10 @@ export function PackLanding() {
     let settled = false;
     const cur = { x: 0, y: 0, k: 1, r: 0 };
 
+    /* the slot starts empty - its pack arrives by flight. Done here rather
+       than in the loop so the very first frame cannot show it twice. */
+    slot.style.opacity = "0";
+
     const update = (now: number) => {
       raf = requestAnimationFrame(update);
       const dt = prev ? Math.min(now - prev, 64) : 16;
@@ -95,55 +99,59 @@ export function PackLanding() {
         if (!isLanded) setActive(0);
       }
 
-      if (p <= 0) {
-        if (shown || settled) {
-          shown = false;
-          settled = false;
-          fly.style.opacity = "0";
-          hero.style.opacity = "";
-          slot.style.opacity = "0";
-        }
-        return;
-      }
-
       /* parked: the real slot element owns the pixels now, and it scrolls with
          the page on its own. Chasing its viewport rect from here would re-enter
          flight on every scrolled frame and flicker the clone over the cycling
          stack - nothing to do until the un-land threshold is crossed. */
       if (isLanded && settled) return;
 
-      /* the scroll-derived target; once landed it is exactly the slot rect.
-         The follower runs in DOCUMENT coordinates: scroll applies to the clone
-         1:1 (no swimming against fast scrolls), easing shapes only the actual
-         travel along the page, and convergence is scroll-independent. */
+      /* docking is landing's mirror: when the scrub returns to zero the clone
+         is NOT hidden where it happens to be - it keeps gliding home to the
+         hero rect and only swaps for the original once it has arrived. Hiding
+         at p=0 directly is what made the return read as an abrupt snap: the
+         hero-side gate collapses fast on the way up, and the eased follower is
+         still well behind the cliff when the cutoff hits. */
+      const docking = !isLanded && p <= 0;
+      if (docking && !shown) return;
+
+      /* the scroll-derived target in DOCUMENT coordinates: scroll applies to
+         the clone 1:1 (no swimming against fast scrolls), easing shapes only
+         the actual travel along the page, and convergence is
+         scroll-independent. Landed pins the target to the slot; docking pins
+         it to the hero. */
       const sx = window.scrollX;
       const sy = window.scrollY;
-      const q = easeInOut(isLanded ? 1 : p);
-      const tx = s.left + (t.left + (t.width - s.width) / 2 - s.left) * q + sx;
-      const ty = s.top + (t.top + (t.height - s.height) / 2 - s.top) * q + sy;
-      const tk = 1 + (t.width / s.width - 1) * q;
-      /* a lean into the travel, gone again by touchdown */
-      const tr = isLanded ? 0 : Math.sin(p * Math.PI) * -7;
+      const at = (qq: number) => ({
+        x: s.left + (t.left + (t.width - s.width) / 2 - s.left) * qq + sx,
+        y: s.top + (t.top + (t.height - s.height) / 2 - s.top) * qq + sy,
+        k: 1 + (t.width / s.width - 1) * qq,
+      });
+      const tgt = at(easeInOut(isLanded ? 1 : docking ? 0 : p));
+      /* a lean into the travel, gone again at either end */
+      const tr = isLanded || docking ? 0 : Math.sin(p * Math.PI) * -7;
 
       if (!shown) {
-        /* entering flight - from above it starts at the hero, from below it
-           starts where the slot pack stands; snapping here is what keeps both
-           handoffs seamless */
-        Object.assign(cur, { x: tx, y: ty, k: tk, r: tr });
+        /* taking off: start from the endpoint the pack is resting in, so it
+           visibly leaves it - the hero when scrolling down, the slot when the
+           un-land threshold sends it back up */
+        const start = at(p > 0.5 ? 1 : 0);
+        Object.assign(cur, { x: start.x, y: start.y, k: start.k, r: 0 });
         shown = true;
       } else {
         /* exponential follower: frame-rate independent, eases every gesture */
         const a = 1 - Math.exp(-dt / 90);
-        cur.x += (tx - cur.x) * a;
-        cur.y += (ty - cur.y) * a;
-        cur.k += (tk - cur.k) * a;
+        cur.x += (tgt.x - cur.x) * a;
+        cur.y += (tgt.y - cur.y) * a;
+        cur.k += (tgt.k - cur.k) * a;
         cur.r += (tr - cur.r) * a;
       }
 
       const converged =
-        Math.abs(cur.x - tx) < 0.5 && Math.abs(cur.y - ty) < 0.5 && Math.abs(cur.k - tk) < 0.004;
+        Math.abs(cur.x - tgt.x) < 0.5 &&
+        Math.abs(cur.y - tgt.y) < 0.5 &&
+        Math.abs(cur.k - tgt.k) < 0.004;
 
-      if (isLanded && converged) {
+      if (converged && isLanded) {
         if (!settled) {
           settled = true;
           shown = false;
@@ -155,6 +163,15 @@ export function PackLanding() {
              twice */
           hero.style.opacity = "0";
         }
+        return;
+      }
+
+      if (converged && docking) {
+        /* home again: swap the clone for the original, pixel-identical */
+        shown = false;
+        fly.style.opacity = "0";
+        hero.style.opacity = "";
+        slot.style.opacity = "0";
         return;
       }
 
