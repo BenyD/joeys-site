@@ -21,16 +21,19 @@ const prefersReducedMotion = () =>
  *
  * On scroll, the hero's centre pack (`#hero-pack`) detaches and glides down
  * into this slot: a fixed-position clone interpolates between the two rects
- * while both originals hide, then vanishes the frame the real stack appears.
- * The swap is invisible because clone and stack are pixel-identical at p=1;
- * that is why the slot's opacity is set imperatively with no transition.
+ * while both originals hide. The clone does not track the scrub directly - it
+ * chases the scroll-derived target through an exponential follower, so motion
+ * eases in and out of every gesture instead of freezing the instant a finger
+ * lifts, and mobile viewport jumps (the URL bar collapsing) are absorbed
+ * rather than teleported through.
  *
- * Once landed, the slot cycles through all three flavours on a slow
- * crossfade. Scrolling back up reverses the flight, so the cycle resets to
- * Barbecue Chicken - the pack that flies must be the pack that left.
+ * The swap to the real element happens only once landed AND converged, so the
+ * handoff stays pixel-identical; that is why the slot's opacity is set
+ * imperatively with no transition. Once landed, the slot cycles through all
+ * three flavours on a slow crossfade, and scrolling back up reverses the
+ * flight with the cycle reset to Barbecue Chicken - the pack that flies back
+ * must be the one that left.
  *
- * Flight progress is driven by the slot, not the hero: p goes 0 to 1 as the
- * slot's centre climbs from ~0.85 viewports below centre to dead centre.
  * Reduced motion skips the flight entirely and keeps the opacity-only cycle.
  */
 export function PackLanding() {
@@ -52,12 +55,18 @@ export function PackLanding() {
 
     /* A rAF loop rather than scroll/resize listeners: the slot also moves when
        layout settles around it (fonts, reveals, viewport chrome), and none of
-       that fires a scroll event. Reads are two rects against clean layout and
-       writes only happen on change, so the idle cost is negligible. */
+       that fires a scroll event. Reads are two rects against clean layout, and
+       writes only happen while something is actually moving. */
     let raf = 0;
-    let last = "";
-    const update = () => {
+    let prev = 0;
+    let shown = false;
+    let settled = false;
+    const cur = { x: 0, y: 0, k: 1, r: 0 };
+
+    const update = (now: number) => {
       raf = requestAnimationFrame(update);
+      const dt = prev ? Math.min(now - prev, 64) : 16;
+      prev = now;
       const vh = window.innerHeight;
       /* a detached or zero-sized viewport reports vh 0, which would poison the
          progress maths and hide the slot; leave the static render alone */
@@ -76,10 +85,6 @@ export function PackLanding() {
       const gate = clamp01((vh * 0.3 - s.top) / (vh * 0.25));
       const p = Math.min(slotP, gate);
 
-      const key = `${p.toFixed(4)}|${Math.round(s.top)}|${Math.round(t.top)}|${Math.round(t.width)}`;
-      if (key === last) return;
-      last = key;
-
       /* hysteresis: once down, stay down until the slot clearly retreats, so
          scroll jitter cannot flick the pack back into the air */
       const isLanded = landedRef.current ? p > 0.9 : p >= 1;
@@ -90,29 +95,66 @@ export function PackLanding() {
         if (!isLanded) setActive(0);
       }
 
-      if (p <= 0 || isLanded) {
-        fly.style.opacity = "0";
-        /* while landed the hero pack stays gone - it lives downstairs now, and
-           the hero tile's bottom sliver can still peek into the viewport at the
-           landing threshold, which would otherwise show the pack twice */
-        hero.style.opacity = isLanded ? "0" : "";
-        slot.style.opacity = isLanded ? "" : "0";
+      if (p <= 0) {
+        if (shown || settled) {
+          shown = false;
+          settled = false;
+          fly.style.opacity = "0";
+          hero.style.opacity = "";
+          slot.style.opacity = "0";
+        }
         return;
       }
 
+      /* the scroll-derived target; once landed it is exactly the slot rect */
+      const q = easeInOut(isLanded ? 1 : p);
+      const tx = s.left + (t.left + (t.width - s.width) / 2 - s.left) * q;
+      const ty = s.top + (t.top + (t.height - s.height) / 2 - s.top) * q;
+      const tk = 1 + (t.width / s.width - 1) * q;
+      /* a lean into the travel, gone again by touchdown */
+      const tr = isLanded ? 0 : Math.sin(p * Math.PI) * -7;
+
+      if (!shown) {
+        /* entering flight - from above it starts at the hero, from below it
+           starts where the slot pack stands; snapping here is what keeps both
+           handoffs seamless */
+        Object.assign(cur, { x: tx, y: ty, k: tk, r: tr });
+        shown = true;
+      } else {
+        /* exponential follower: frame-rate independent, eases every gesture */
+        const a = 1 - Math.exp(-dt / 90);
+        cur.x += (tx - cur.x) * a;
+        cur.y += (ty - cur.y) * a;
+        cur.k += (tk - cur.k) * a;
+        cur.r += (tr - cur.r) * a;
+      }
+
+      const converged =
+        Math.abs(cur.x - tx) < 0.5 && Math.abs(cur.y - ty) < 0.5 && Math.abs(cur.k - tk) < 0.004;
+
+      if (isLanded && converged) {
+        if (!settled) {
+          settled = true;
+          shown = false;
+          fly.style.opacity = "0";
+          slot.style.opacity = "";
+          /* while landed the hero pack stays gone - it lives downstairs now,
+             and the hero tile's bottom sliver can still peek into the viewport
+             at the landing threshold, which would otherwise show the pack
+             twice */
+          hero.style.opacity = "0";
+        }
+        return;
+      }
+
+      settled = false;
       hero.style.opacity = "0";
       slot.style.opacity = "0";
-      const q = easeInOut(p);
-      const x = s.left + (t.left + (t.width - s.width) / 2 - s.left) * q;
-      const y = s.top + (t.top + (t.height - s.height) / 2 - s.top) * q;
-      const k = 1 + (t.width / s.width - 1) * q;
-      /* a lean into the travel, gone again by touchdown */
-      const r = Math.sin(p * Math.PI) * -7;
       fly.style.width = `${s.width}px`;
-      fly.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${k})`;
+      fly.style.transform = `translate3d(${cur.x}px, ${cur.y}px, 0) rotate(${cur.r}deg) scale(${cur.k})`;
       fly.style.opacity = "1";
     };
-    update();
+    raf = requestAnimationFrame(update);
     return () => {
       cancelAnimationFrame(raf);
       hero.style.opacity = "";
@@ -145,8 +187,8 @@ export function PackLanding() {
             alt={`Joey's ${f.name} crisps pack`}
             width={612}
             height={853}
-            className={`${i === 0 ? "relative" : "absolute inset-0"} w-full drop-shadow-[0_22px_36px_rgba(59,13,20,0.4)] transition-opacity duration-[450ms] ease-in-out ${
-              i === active ? "opacity-100" : "opacity-0"
+            className={`${i === 0 ? "relative" : "absolute inset-0"} w-full drop-shadow-[0_22px_36px_rgba(59,13,20,0.4)] transition-[opacity,scale] duration-[520ms] ease-[cubic-bezier(0.2,0,0,1)] ${
+              i === active ? "scale-100 opacity-100" : "scale-[0.98] opacity-0"
             }`}
           />
         ))}

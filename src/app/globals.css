@@ -73,6 +73,12 @@ body {
   font-family: var(--font-body);
 }
 
+/* Ragged-edge control: balanced headings, no orphans in body copy.
+   Both are no-ops on single-line text, so buttons and labels are unaffected. */
+p {
+  text-wrap: pretty;
+}
+
 /* Display headings: heavy, tight, slightly optically tuned like the reference */
 .display {
   font-family: var(--font-display);
@@ -80,6 +86,7 @@ body {
   letter-spacing: -0.005em;
   line-height: 0.94;
   font-weight: 400;
+  text-wrap: balance;
 }
 
 .head {
@@ -87,6 +94,7 @@ body {
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.05;
+  text-wrap: balance;
 }
 
 .eyebrow {
@@ -105,7 +113,7 @@ body {
     border-color var(--dur-hover) ease;
 }
 .pressable:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 /* ── Scroll reveal ──
