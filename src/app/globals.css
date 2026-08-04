@@ -187,6 +187,37 @@ body {
   animation-direction: reverse;
 }
 
+/* ── Neon flicker, for the hero sign ──
+   A tube with a slightly tired transformer: lit and steady for seconds at a
+   time, then two quick stutters. Only opacity animates - the element carries a
+   drop-shadow filter utility, and animating `filter` here would clobber it. The
+   dips stay shallow so the sign reads as flickering, never as broken. */
+@keyframes joeys-neon-flicker {
+  0%,
+  41%,
+  43.6%,
+  77.9%,
+  79.2%,
+  100% {
+    opacity: 1;
+  }
+  41.6% {
+    opacity: 0.55;
+  }
+  42.2% {
+    opacity: 0.95;
+  }
+  42.9% {
+    opacity: 0.7;
+  }
+  78.5% {
+    opacity: 0.6;
+  }
+}
+.neon-flicker {
+  animation: joeys-neon-flicker 8s linear infinite;
+}
+
 /* ── Concentric ripple, the signature pack device ── */
 .ripple {
   background-image: repeating-radial-gradient(
@@ -348,6 +379,9 @@ html[data-vt="lateral"]::view-transition-new(root) {
     scroll-behavior: auto;
   }
   .marquee-track {
+    animation: none;
+  }
+  .neon-flicker {
     animation: none;
   }
   .t-dropdown {

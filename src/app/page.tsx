@@ -2,6 +2,7 @@ import Image from "next/image";
 import { TLink } from "@/components/ViewTransitions";
 import { Doodles } from "@/components/Doodles";
 import { Marquee } from "@/components/Marquee";
+import { PackLanding } from "@/components/PackLanding";
 import { Rail } from "@/components/Rail";
 import { Reveal } from "@/components/Reveal";
 import { StatRow } from "@/components/StatRow";
@@ -141,7 +142,7 @@ export default function Home() {
         <div className="grid gap-2.5 sm:gap-4 lg:grid-cols-2">
           {/* pack tile */}
           <div
-            className="ripple relative flex min-h-[320px] items-end justify-center overflow-hidden rounded-[14px] sm:min-h-[440px]"
+            className="ripple relative flex min-h-[320px] flex-col items-center justify-between overflow-hidden rounded-[14px] sm:min-h-[440px]"
             style={{
               background: `radial-gradient(ellipse at 50% 30%, #7a1a2c 0%, ${bbq.base} 45%, #2c0810 100%)`,
             }}
@@ -155,10 +156,21 @@ export default function Home() {
               </span>
             </span>
 
-            <div className="relative -mb-4 flex w-full items-end justify-center pt-8">
+            <Image
+              src="/joeys-logo.png"
+              alt="Joey's"
+              width={900}
+              height={642}
+              priority
+              className="neon-flicker relative mt-12 w-[112px] drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:mt-10 sm:w-[150px]"
+            />
+
+            <div className="relative -mb-4 flex w-full items-end justify-center pt-4">
               {[prawn, bbq, bacon].map((f, i) => (
                 <Image
                   key={f.slug}
+                  /* the pack that PackLanding detaches and flies down the page */
+                  id={i === 1 ? "hero-pack" : undefined}
                   src={f.pack}
                   alt={`Joey's ${f.name} crisps`}
                   width={612}
@@ -243,23 +255,7 @@ export default function Home() {
               ))}
             </div>
 
-            <Reveal className="relative mx-auto w-[220px] shrink-0 sm:w-[300px]">
-              {/* soft warm glow so the cut-out pack sits on the cream rather than floating */}
-              <div
-                className="absolute -inset-x-20 -inset-y-6"
-                style={{
-                  background:
-                    "radial-gradient(ellipse 55% 45% at 50% 52%, rgba(224,83,46,0.22) 0%, rgba(91,18,32,0.10) 55%, transparent 72%)",
-                }}
-              />
-              <Image
-                src={bbq.pack}
-                alt={`Joey's ${bbq.name} crisps pack`}
-                width={612}
-                height={853}
-                className="relative drop-shadow-[0_22px_36px_rgba(59,13,20,0.4)]"
-              />
-            </Reveal>
+            <PackLanding />
 
             <div className="grid gap-9 sm:grid-cols-2 lg:grid-cols-1 lg:gap-14">
               {pillars.slice(2).map((p, i) => (
@@ -413,8 +409,8 @@ export default function Home() {
             as="h2"
             className="head text-[clamp(1.5rem,5.6vw,2.9rem)] leading-[1.25] text-gold"
           >
-            Deep, slow, oak-smoked flavour <InlineDisc src={bacon.disc} /> on a crisp that
-            earns its keep <InlineDisc src={bbq.disc} /> long after the first bite.
+            Deep, slow, oak-smoked flavour <InlineDisc src={bacon.dish} /> on a crisp that
+            earns its keep <InlineDisc src={bbq.dish} /> long after the first bite.
           </Reveal>
           <Reveal delay={120} className="mt-8 flex flex-wrap justify-center gap-3 sm:mt-9 sm:gap-3.5">
             <ArrowButton
@@ -560,7 +556,9 @@ function InlineDisc({ src }: { src: string }) {
       aria-hidden
       width={500}
       height={500}
-      className="inline-block h-[1.15em] w-[1.15em] -translate-y-[0.08em] rounded-full object-cover align-middle"
+      /* the chips-and-dish art is a transparent cut-out, so it sits inline
+         uncropped - a circle mask would clip the chips */
+      className="inline-block h-[1.3em] w-[1.3em] -translate-y-[0.08em] object-contain align-middle drop-shadow-[0_6px_10px_rgba(0,0,0,0.45)]"
     />
   );
 }
