@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ComponentProps, type MouseEvent } from "react";
-import { scrollToHash } from "@/lib/scroll";
+import { scrollToHash, scrollToHashSettling } from "@/lib/scroll";
 
 /*
  * View transitions against the native browser API.
@@ -18,63 +18,57 @@ import { scrollToHash } from "@/lib/scroll";
  */
 
 let pendingNav: (() => void) | null = null;
+/**
+ * Where the pending navigation should land on the new page: at the top, or on
+ * a fragment. Landing has to happen here, inside the transition, because
+ * `html { scroll-behavior: smooth }` turns every browser-initiated scroll
+ * reset into an animation, and the view transition freezes rendering before
+ * that animation gets anywhere - the new page was being captured still
+ * scrolled partway down wherever the old page happened to be.
+ */
+let pendingScroll: { top: true } | { hash: string } | null = null;
 
 /*
- * ── Shared element morph ──
- *
- * One fixed name, claimed for the length of a single navigation, never declared
- * statically anywhere.
- *
- * The earlier attempt gave every pack its own permanent `pack-<slug>` name. That
- * is the obvious design and it is the wrong one: a name has to be unique within
- * each captured state, and with names baked into the markup you cannot reason
- * about how many holders exist at capture time. Going flavour to flavour, the
- * outgoing hero and the incoming hero would both want the same name.
- *
- * Instead: the element you actually clicked claims MORPH on the way out, the
- * destination hero claims it on the way in, and both release when the transition
- * finishes. Exactly one holder per captured state, by construction, and the
- * morph animates the thing the visitor pointed at rather than an unrelated pack.
+ * There is no click-time shared-element machinery here any more. The flavour
+ * hero pack carries a permanent `flavour-hero` view-transition-name instead -
+ * exactly one per page, so uniqueness within a captured state holds by
+ * construction. Entrances, exits and the flavour-to-flavour pack morph are all
+ * styled in globals.css off that one name. The old approach morphed whatever
+ * disc was clicked into the hero pack, and a small circle of chips becoming a
+ * huge bag never read as one object.
  */
-export const MORPH = "flavour-morph";
-
-/** Set between the click and the destination hero claiming the name. */
-let morphPending = false;
-/** Whoever currently holds the name, so the transition can hand it all back. */
-let morphHolders: HTMLElement[] = [];
-
-function releaseMorph() {
-  for (const el of morphHolders) el.style.viewTransitionName = "";
-  morphHolders = [];
-  morphPending = false;
-}
-
-/**
- * Called by the destination hero. Claims the name once, then disarms.
- *
- * Hands the name off rather than adding a second holder. The outgoing snapshot
- * was captured before the update callback ran, so the source has already done
- * its job by the time this fires and can safely give the name up. Measured
- * without this, the old route was still mounted at capture time and the
- * document briefly carried two `flavour-morph` elements: it happened to survive,
- * but duplicate names are exactly what aborts a transition, and "happened to"
- * is not a guarantee.
- */
-export function claimMorph(el: HTMLElement | null) {
-  if (!morphPending || !el) return false;
-  morphPending = false;
-  for (const prev of morphHolders) prev.style.viewTransitionName = "";
-  morphHolders = [];
-  el.style.viewTransitionName = MORPH;
-  morphHolders.push(el);
-  return true;
-}
 
 /** Mounted once in the layout. Releases the transition when the route lands. */
 export function NavigationTransitions() {
   const pathname = usePathname();
 
   useEffect(() => {
+    /*
+     * Land the navigation before the incoming snapshot is captured: plain
+     * route changes at the top, fragment navigations on their anchor (with
+     * the top as the fallback for a fragment that matches nothing). Instant
+     * on purpose - see the note on `pendingScroll`.
+     *
+     * Fragment landings need aftercare. At commit time the new document is
+     * still growing - images decoding, fonts swapping - so a jump to a deep
+     * anchor clamps against the short document and strands the visitor
+     * partway down. Timed retries lose that race on slow loads, so instead a
+     * ResizeObserver re-asserts the anchor every time the document's height
+     * actually changes, for a bounded window. The moment the visitor scrolls
+     * themselves the position is theirs: the first observation after that
+     * sees the mismatch and disconnects without touching anything.
+     */
+    if (pendingNav && pendingScroll) {
+      const ps = pendingScroll;
+      /* A fragment landing has to hold its target while the new document
+         grows, which is what scrollToHashSettling does; the top needs no
+         such care, and is also the fallback for a fragment matching
+         nothing. */
+      if ("top" in ps || !scrollToHashSettling(ps.hash)) {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+    }
+    pendingScroll = null;
     // Release the moment React commits, and nothing clever after it.
     //
     // Do NOT wait for requestAnimationFrame here. Rendering is suspended for the
@@ -113,15 +107,9 @@ export function TLink({
   href,
   onClick,
   children,
-  morph = false,
   ...rest
 }: ComponentProps<typeof Link> & {
   href: string;
-  /**
-   * Fly this link's image into the destination hero. The named element is the
-   * `[data-morph]` descendant if there is one, otherwise the link itself.
-   */
-  morph?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -170,16 +158,9 @@ export function TLink({
     const to = depth(target);
     document.documentElement.dataset.vt =
       to > from ? "forward" : to < from ? "back" : "lateral";
-
-    // Claim the morph name on the clicked image before the outgoing snapshot is
-    // taken. Released on `finished` so a settled page never holds the name.
-    if (morph) {
-      const source =
-        e.currentTarget.querySelector<HTMLElement>("[data-morph]") ?? e.currentTarget;
-      source.style.viewTransitionName = MORPH;
-      morphHolders.push(source);
-      morphPending = true;
-    }
+    /* A plain route change lands at the top of the new page; a cross-page
+       anchor ("/#flavours" from a flavour page) lands on its fragment. */
+    pendingScroll = hash === undefined ? { top: true } : { hash };
 
     const transition = document.startViewTransition(
       () =>
@@ -199,13 +180,19 @@ export function TLink({
         }),
     );
 
-    // One owner for cleanup: whatever claimed the name, on either side, hands it
-    // back here. A settled page never holds it, so the next navigation starts
-    // from a known state no matter which way it went.
-    transition.finished.finally(() => {
-      delete document.documentElement.dataset.vt;
-      releaseMorph();
-    });
+    // Clear the direction flag once the transition settles, so the next
+    // navigation starts from a known state no matter which way it went.
+    //
+    // The trailing catch is not defensive fluff: `finished` REJECTS whenever a
+    // transition aborts, which happens legitimately (a navigation fired while
+    // another transition was still running, the document going hidden
+    // mid-flight), and an unhandled rejection logs a console error for what is
+    // normal behaviour. The cleanup in `finally` runs either way.
+    transition.finished
+      .finally(() => {
+        delete document.documentElement.dataset.vt;
+      })
+      .catch(() => {});
   };
 
   return (

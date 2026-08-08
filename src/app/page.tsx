@@ -55,18 +55,13 @@ const pillars: { icon: Mark; title: string; body: string }[] = [
 /*
  * Ingredient cards.
  *
- * ⚠ ONE UNVERIFIED CLAIM LEFT - "Sea Salt". Nothing the client supplied (the
- * flavour write-ups, the pack artwork, the manufacturing page) contains an
- * ingredient declaration, and the words "sea salt" appear nowhere in any of it;
- * it was assumed while building this row and could easily be plain iodised
- * salt. Ingredient declarations are regulated, so that label needs confirming
- * or correcting before this page goes anywhere near production.
- *
- * Verified and safe: "Potatoes" (pack reads "Potato Chips"), "Refined Palmolein
- * Oil" (confirmed by the client, correcting an earlier assumption of sunflower
- * oil), "Seasoning" (the manufacturing page states the flavour is all in the
- * seasoning), and "100% Vegetarian" (stated on pack, in the write-ups, and on
- * the manufacturing page).
+ * All five labels are verified: "Potatoes" (pack reads "Potato Chips"),
+ * "Refined Palmolein Oil" (confirmed by the client, correcting an earlier
+ * assumption of sunflower oil), "Salt" (the client confirmed it is not sea
+ * salt, which this row briefly assumed; plain "Salt" claims nothing about the
+ * variety), "Seasoning" (the manufacturing page states the flavour is all in
+ * the seasoning), and "100% Vegetarian" (stated on pack, in the write-ups, and
+ * on the manufacturing page).
  *
  * `image` is the slot for photography. Drop a square shot into
  * /public/ingredients and set the path; the illustration is the fallback and
@@ -76,7 +71,7 @@ const pillars: { icon: Mark; title: string; body: string }[] = [
 const ingredients: { icon: Mark; label: string; image?: string }[] = [
   { icon: MarkPotato, label: "Potatoes", image: "/ingredients/potatoes.jpg" },
   { icon: MarkOil, label: "Refined Palmolein Oil", image: "/ingredients/oil.jpg" },
-  { icon: MarkSalt, label: "Sea Salt", image: "/ingredients/salt.jpg" },
+  { icon: MarkSalt, label: "Salt", image: "/ingredients/salt.jpg" },
   { icon: MarkSeasoning, label: "Seasoning", image: "/ingredients/seasoning.jpg" },
   // Closes the row on the certification rather than a prohibition sign. Same
   // fact, stated as what the crisp is instead of what it is not, and it is the
@@ -85,9 +80,10 @@ const ingredients: { icon: Mark; label: string; image?: string }[] = [
 ];
 
 /**
- * PLACEHOLDER - the brand has no customer reviews yet, so this carousel runs on
- * the flavour manifestos rather than invented quotes. Swap the array for real
- * testimonials (quote + name) when they exist; the markup needs no changes.
+ * Parked behind `site.testimonials.enabled` - the brand has no customer
+ * reviews yet, and running the carousel on flavour manifestos read as
+ * testimonials it does not have. Swap this array for real quotes (text +
+ * name) and flip the switch; the markup needs no changes.
  */
 const quotes = [
   {
@@ -167,7 +163,7 @@ export default function Home() {
               width={900}
               height={642}
               priority
-              className="neon-flicker relative mt-12 w-[136px] drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:mt-10 sm:w-[184px]"
+              className="neon-flicker relative mt-12 w-[172px] drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:mt-10 sm:w-[236px]"
             />
 
             <div className="relative -mb-4 flex w-full items-end justify-center pt-4">
@@ -290,7 +286,6 @@ export default function Home() {
               <Reveal key={f.slug} delay={i * 90} className="shrink-0">
                 <TLink
                   href={`/flavours/${f.slug}`}
-                  morph
                   className="pressable group flex w-[190px] flex-col items-center text-center sm:w-[260px]"
                 >
                   <span
@@ -302,7 +297,6 @@ export default function Home() {
                       style={{ background: f.dishBg }}
                     >
                       <Image
-                        data-morph
                         src={f.dish}
                         alt={`Joey's ${f.name} crisps`}
                         width={500}
@@ -433,38 +427,46 @@ export default function Home() {
 
       <Marquee items={marqueeB} tone="coral" duration={42} reverse />
 
-      {/* ═══ QUOTES ═══ */}
-      <section className="px-5 py-14 sm:py-24">
-        <div className="mx-auto max-w-[1120px] text-center">
-          <Reveal>
-            <Pill>Straight from the pack</Pill>
-          </Reveal>
-          <Reveal
-            as="h2"
-            delay={80}
-            className="display mt-5 text-[clamp(1.9rem,7vw,3.4rem)] text-ink"
-          >
-            What every bag <Accent>promises</Accent>
-          </Reveal>
-        </div>
-
-        <Rail label="What every bag promises" className="mx-auto mt-10 flex max-w-[1240px] gap-4 overflow-x-auto sm:mt-12 sm:gap-5">
-          {quotes.map((q, i) => (
-            <Reveal key={i} delay={i * 70} className="shrink-0">
-              <figure
-                className={`flex h-full w-[250px] flex-col justify-between rounded-[14px] px-5 py-6 sm:w-[290px] sm:px-6 sm:py-7 ${q.tint}`}
-              >
-                <blockquote className="head text-[15px] leading-[1.35] text-ink sm:text-[16px]">
-                  &ldquo;{q.quote}&rdquo;
-                </blockquote>
-                <figcaption className="mt-6 border-t-2 border-ink/15 pt-3.5">
-                  <span className="eyebrow uppercase text-ink/70">{q.by}</span>
-                </figcaption>
-              </figure>
+      {/* ═══ QUOTES ═══
+          Off while `site.testimonials.enabled` is false; returns as a real
+          testimonial wall once genuine quotes replace the manifesto copy.
+          The cream spacer stands in for the section's ground: the closing
+          band's badge is designed to straddle a cream edge, and without it
+          the badge would sit half over the marquee's scrolling text. */}
+      {!site.testimonials.enabled && <div aria-hidden className="h-16 sm:h-24" />}
+      {site.testimonials.enabled && (
+        <section className="px-5 py-14 sm:py-24">
+          <div className="mx-auto max-w-[1120px] text-center">
+            <Reveal>
+              <Pill>Straight from the pack</Pill>
             </Reveal>
-          ))}
-        </Rail>
-      </section>
+            <Reveal
+              as="h2"
+              delay={80}
+              className="display mt-5 text-[clamp(1.9rem,7vw,3.4rem)] text-ink"
+            >
+              What every bag <Accent>promises</Accent>
+            </Reveal>
+          </div>
+
+          <Rail label="What every bag promises" className="mx-auto mt-10 flex max-w-[1240px] gap-4 overflow-x-auto sm:mt-12 sm:gap-5">
+            {quotes.map((q, i) => (
+              <Reveal key={i} delay={i * 70} className="shrink-0">
+                <figure
+                  className={`flex h-full w-[250px] flex-col justify-between rounded-[14px] px-5 py-6 sm:w-[290px] sm:px-6 sm:py-7 ${q.tint}`}
+                >
+                  <blockquote className="head text-[15px] leading-[1.35] text-ink sm:text-[16px]">
+                    &ldquo;{q.quote}&rdquo;
+                  </blockquote>
+                  <figcaption className="mt-6 border-t-2 border-ink/15 pt-3.5">
+                    <span className="eyebrow uppercase text-ink/70">{q.by}</span>
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
+          </Rail>
+        </section>
+      )}
 
       {/* ═══ CLOSING CTA BAND ═══ */}
       {/* No overflow clipping here on purpose: the badge and the packs are meant

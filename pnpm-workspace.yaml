@@ -1,4 +1,6 @@
 allowBuilds:
+  # react-email's preview server bundles templates with esbuild
+  esbuild: true
   sharp: true
   unrs-resolver: true
 minimumReleaseAgeExclude:

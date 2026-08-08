@@ -31,10 +31,12 @@ pnpm build && pnpm start
 ## Where things live
 
 ```
+emails/                react-email templates. `pnpm email` previews them on :3001
 src/lib/site.ts        brand facts, contact details, feature switches
 src/lib/flavours.ts    the three flavours: copy, colours, artwork
 src/lib/legal.ts       legal page content as structured data
 src/components/        marks.tsx holds the hand-drawn brand illustrations
+src/components/Splash.tsx  first-visit splash + loading screen, once per tab session
 public/packs/          pack shots, background removed, plus circular crops
 public/ingredients/    ingredient photography (CC0, see CREDITS.md)
 ```
@@ -51,8 +53,10 @@ House rules worth knowing before editing:
   documented at the top of that file.
 - **View transitions run against the native browser API**, not React's
   `<ViewTransition>`, which is absent from the React that Next 16.2 resolves.
-  See `src/components/ViewTransitions.tsx` for the shared-element approach and
-  why names are claimed at click time rather than written into markup.
+  See `src/components/ViewTransitions.tsx`. The flavour hero pack carries a
+  permanent `flavour-hero` view-transition-name (one per page): arriving plays
+  its entrance, leaving plays its exit, and flavour-to-flavour morphs bag into
+  bag - all styled in `globals.css`.
 
 ## Outstanding
 
@@ -60,14 +64,16 @@ Everything below is marked `PLACEHOLDER` at its use site.
 
 | Item | Where | Note |
 | --- | --- | --- |
-| Support email and phone | `src/lib/site.ts` | `[EMAIL]` and `[PHONE]`. `contactReady` stops them rendering as dead links |
-| Domain | `src/lib/site.ts` | `url` is a `.example` placeholder |
 | Retail links | `src/lib/site.ts` | `buy.enabled` is `false`, so every "where to buy" resolves to contact |
-| Contact form endpoint | `src/lib/site.ts` | `contact.endpoint` is `null`; the form composes an email until it is set |
-| Ingredient declaration | `src/app/page.tsx` | "Sunflower Oil" and "Sea Salt" are **unverified assumptions**, not from any client source. Check the back of a pack before launch |
-| Legal review | `src/lib/legal.ts` | Drafts. Flip `reviewed: true` to drop the banner |
-| Customer testimonials | `src/app/page.tsx` | The quote carousel runs on flavour copy, not real reviews |
+| Contact form sending | `src/app/api/contact/route.ts` | Wired to Resend; needs `RESEND_API_KEY` in env. Testing runs on the sandbox sender with `CONTACT_TO` pointed at the account owner; launch needs the domain verified in Resend, `CONTACT_FROM` set and `CONTACT_TO` removed |
+| Legal review | `src/lib/legal.ts` | Draft banner removed at client request, but the text has not been lawyer-reviewed and the grievance officer still needs a named individual |
+| Customer testimonials | `src/lib/site.ts` | Collection is live: the "Share your experience" topic on the contact form takes stars, city and consent, and emails the desk. Section is hidden behind `testimonials.enabled` until real quotes replace the flavour copy in `page.tsx`. Nothing publishes automatically, and nothing publishes without consent |
 | Social links | `src/lib/site.ts` | All `#` |
+
+Resolved since: support email and phone are real (`contactReady` guards a
+regression), the domain is live at `https://www.ritaandjosfoods.com` (www is
+canonical; the apex redirects to it), and the ingredient row is fully
+client-verified, including plain "Salt" over the assumed "Sea Salt".
 
 ## Previewing the error page
 

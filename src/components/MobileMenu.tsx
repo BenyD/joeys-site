@@ -82,7 +82,6 @@ export function MobileMenu({
             >
               <TLink
                 href={`/flavours/${f.slug}`}
-                morph
                 onClick={onClose}
                 className="pressable flex items-center gap-4 rounded-2xl p-3"
                 style={{ background: f.base }}
@@ -96,7 +95,6 @@ export function MobileMenu({
                     style={{ background: f.dishBg }}
                   >
                     <Image
-                      data-morph
                       src={f.dish}
                       alt=""
                       aria-hidden

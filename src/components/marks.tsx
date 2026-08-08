@@ -210,15 +210,28 @@ export function MarkCertificate(props: MarkProps) {
   );
 }
 
-/* ── Crisp ── */
-export function MarkCrisp(props: MarkProps) {
+/* ── Crisp ──
+   Drawn the way the pack art draws a crisp: a round slice carrying the
+   brand's concentric ripple rings, with a proper two-tooth bite out of the
+   top right. The bite is what says "snack" at any size, and the ring dashes
+   are the same device as the pack ripples, so the mark stays on-language.
+   Earlier attempts that skipped the bite read as candy, scallop shell or
+   bacon in turn; the slice-plus-bite silhouette is the one that survives
+   being 30px tall.
+
+   Takes a `fill` so the splash can deal one crisp per flavour in that
+   flavour's ring colour; the default keeps the house gold. Still one fill
+   per mark either way. */
+export function MarkCrisp({ fill = "#f5b921", ...props }: MarkProps & { fill?: string }) {
   return (
     <Svg {...props}>
       <path
-        d="M10 30c-3.5-8 2.5-18 12.5-21C31 6.4 39 11 39 19.5 39 30 29 41 19.5 41 14.5 41 11.6 37 10 30Z"
-        fill="#f5b921"
+        d="M38.5 24A17 15.5 0 1 1 30.5 10.8A5 5 0 0 0 34 17A5 5 0 0 0 38.5 24Z"
+        fill={fill}
       />
-      <path d="M18 20c3-2.5 7-2.5 10 .5" />
+      <path d="M10.7 21c1.5-4 4.8-7.2 9-8.6" />
+      <path d="M12.8 30.5c3.8 3 8.8 3.8 13.8 2.2" />
+      <path d="M17.5 25.6c.4-3 2.3-5.6 5.2-6.9" />
     </Svg>
   );
 }

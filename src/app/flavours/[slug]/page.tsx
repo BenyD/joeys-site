@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { TLink } from "@/components/ViewTransitions";
-import { MorphHero } from "@/components/MorphHero";
 import { notFound } from "next/navigation";
 import { Doodles } from "@/components/Doodles";
 import { Marquee } from "@/components/Marquee";
@@ -105,15 +104,16 @@ export default async function FlavourPage({ params }: { params: Promise<{ slug: 
                 {site.pack.vegetarian}
               </span>
             </span>
-            {/* Destination of the morph: whatever you clicked flies into this. */}
-            <MorphHero targetId="flavour-hero-pack" />
+            {/* Carries a permanent transition name: arriving here plays the
+                pack's entrance, leaving plays its exit, and flavour-to-flavour
+                morphs bag into bag. See the flavour-hero rules in globals.css. */}
             <Image
-              id="flavour-hero-pack"
               src={flavour.pack}
               alt={`Joey's ${flavour.name} flavoured potato crisps, ${site.pack.weight} pack`}
               width={612}
               height={853}
               priority
+              style={{ viewTransitionName: "flavour-hero" }}
               className="relative w-[62vw] max-w-[380px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.6)] lg:w-[68%]"
             />
           </div>
@@ -216,7 +216,6 @@ export default async function FlavourPage({ params }: { params: Promise<{ slug: 
               <Reveal key={f.slug} delay={i * 90} className="shrink-0">
                 <TLink
                   href={`/flavours/${f.slug}`}
-                  morph
                   className="pressable group flex w-[190px] flex-col items-center text-center sm:w-[250px]"
                 >
                   <span
@@ -224,7 +223,6 @@ export default async function FlavourPage({ params }: { params: Promise<{ slug: 
                     style={{ background: f.ring }}
                   >
                     <Image
-                      data-morph
                       src={f.disc}
                       alt={`Joey's ${f.name} crisps`}
                       width={500}

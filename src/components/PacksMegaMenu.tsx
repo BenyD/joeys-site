@@ -47,29 +47,30 @@ export function PacksMegaMenu({
               <TLink
                 key={f.slug}
                 href={`/flavours/${f.slug}`}
-                morph
                 onClick={onClose}
                 className="group flex items-center gap-4 rounded-[15px] p-3 transition-colors duration-[180ms] hover:bg-ink/[0.05]"
               >
+                {/* Same device as the flavour rail on the home page: the
+                    flavour's ring colour as a circular frame, its dish
+                    gradient behind, the chips-and-dish art inside. One
+                    vocabulary for "a flavour" everywhere it appears. */}
                 <span
-                  className="ripple relative grid h-[118px] w-[94px] shrink-0 place-items-center overflow-hidden rounded-[11px]"
-                  style={{
-                    /* Dark bag on a dark tile needs a rim light: one warm
-                       tungsten spotlight (same as the neon logo) over each
-                       flavour's own base colour. */
-                    background: `radial-gradient(circle at 50% 30%, #ffedc9 0%, rgba(247,183,86,0.5) 42%, ${f.base} 82%, #1b0710 100%)`,
-                  }}
+                  className="block shrink-0 rounded-full p-[5px] transition-transform duration-[260ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:-translate-y-1"
+                  style={{ background: f.ring }}
                 >
-                  <Image
-                    data-morph
-                    src={f.pack}
-                    alt=""
-                    aria-hidden
-                    width={612}
-                    height={853}
-                    className="w-[66%] transition-transform duration-[260ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:-translate-y-1"
-                    style={{ filter: "drop-shadow(0 10px 16px rgba(0,0,0,0.5)) drop-shadow(0 0 14px rgba(255,214,140,0.6))" }}
-                  />
+                  <span
+                    className="flex h-[104px] w-[104px] items-center justify-center overflow-hidden rounded-full"
+                    style={{ background: f.dishBg }}
+                  >
+                    <Image
+                      src={f.dish}
+                      alt=""
+                      aria-hidden
+                      width={500}
+                      height={500}
+                      className="h-[88px] w-[88px] object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.5)] transition-transform duration-[260ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:scale-[1.04]"
+                    />
+                  </span>
                 </span>
 
                 <span className="min-w-0">

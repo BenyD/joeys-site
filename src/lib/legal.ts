@@ -3,17 +3,18 @@ import { site } from "./site";
 /**
  * Legal page content.
  *
- * ⚠ THESE ARE DRAFTS, NOT REVIEWED LEGAL TEXT. They follow the structure a
- * brand-only site in India is expected to have (Information Technology
- * (Intermediary Guidelines) rules for the terms, the Digital Personal Data
- * Protection Act 2023 for the privacy policy, including the grievance officer
- * that Act requires), and they are written against how this site actually
- * behaves today: no accounts, no payments, no cart, one contact email.
+ * These follow the structure a brand-only site in India is expected to have
+ * (Information Technology (Intermediary Guidelines) rules for the terms, the
+ * Digital Personal Data Protection Act 2023 for the privacy policy, including
+ * the grievance officer that Act requires), and they are written against how
+ * this site actually behaves today: no accounts, no payments, no cart, one
+ * contact email.
  *
- * They still need a lawyer to read them before launch, and they need revisiting
- * the moment the site starts taking orders, running analytics, or collecting
- * anything beyond an email. The banner on the page says as much to the reader;
- * remove it once the text has been signed off.
+ * ⚠ The draft banner was removed at the client's request (`reviewed: true`),
+ * but no lawyer has signed this text off - that review is still worth doing,
+ * and the grievance officer clause still needs a named individual. Revisit
+ * everything here the moment the site starts taking orders, running
+ * analytics, or collecting anything beyond an email.
  */
 
 export type LegalSection = {
@@ -35,7 +36,10 @@ export type LegalDoc = {
   sections: LegalSection[];
 };
 
-const UPDATED = "2 August 2026";
+/* Bump this whenever either document changes in substance: both pages print
+   it, and the closing section of each promises a new date on every revision.
+   Last moved when review collection was added. */
+const UPDATED = "8 August 2026";
 
 export const terms: LegalDoc = {
   slug: "terms",
@@ -43,7 +47,7 @@ export const terms: LegalDoc = {
   eyebrow: "Legal",
   intro: `These terms govern your use of the ${site.name} website. Please read them before using the site.`,
   updated: UPDATED,
-  reviewed: false,
+  reviewed: true,
   sections: [
     {
       id: "about",
@@ -59,6 +63,20 @@ export const terms: LegalDoc = {
       body: [
         "This site exists to tell you about our products. It does not sell anything, take payment, or hold an account for you.",
         "You agree not to use the site in any way that is unlawful, that interferes with anyone else's use of it, or that attempts to gain access to systems or data you have no right to.",
+      ],
+    },
+    {
+      id: "what-you-send",
+      heading: "What you send us",
+      body: [
+        "You can write to us through the contact form, and you can send us a review of something you have eaten. Anything you send stays yours; you are simply giving us permission to use it as described here.",
+        "If you tick the box agreeing to be featured, you allow us to publish your review on this site alongside your first name and, if you gave one, your city. We will never publish your email address or phone number. We may shorten a review to fit, but never in a way that changes what you meant.",
+        "Nothing is published automatically. A person reads every review, and we may decline to publish one, or remove one later, for any reason. If you change your mind, tell us and we will take it down.",
+      ],
+      list: [
+        "Send us only your own honest experience of a product you have actually tried.",
+        "Do not send anything unlawful, misleading, offensive, or that belongs to someone else.",
+        "Do not include other people's personal details.",
       ],
     },
     {
@@ -117,7 +135,7 @@ export const privacy: LegalDoc = {
   eyebrow: "Legal",
   intro: `How ${site.legalName} handles personal data collected through this website.`,
   updated: UPDATED,
-  reviewed: false,
+  reviewed: true,
   sections: [
     {
       id: "about",
@@ -134,7 +152,8 @@ export const privacy: LegalDoc = {
         "This site has no accounts, no cart and no payment. We collect very little.",
       ],
       list: [
-        "If you email or call us, whatever you choose to tell us: your name, your contact details, and the content of your message.",
+        "If you write to us through the contact form, email or call us, whatever you choose to tell us: your name, your contact details, and the content of your message.",
+        "If you send us a review, additionally the rating and city you choose to give, and whether you agreed to it being published.",
         "Standard technical information your browser sends to our hosting provider when a page loads, such as your IP address, device type and the pages you visited. This is used to keep the site running and secure.",
       ],
     },
@@ -143,6 +162,7 @@ export const privacy: LegalDoc = {
       heading: "How we use it",
       body: [
         "We use what you send us to answer you, and to investigate any product query you raise. If you give us a batch code, we use it to trace that batch with our manufacturing partner.",
+        "Reviews are read by a person, never published automatically, and published only if you ticked the box agreeing to it. When we do publish one, we show your first name and city and nothing else: never your email address or phone number. Tell us at any time and we will take it down.",
         "We use technical information in aggregate to understand whether the site is working and to protect it from abuse. We do not use it to build a profile of you.",
         "We do not sell personal data, and we do not use it for advertising.",
       ],
@@ -162,8 +182,15 @@ export const privacy: LegalDoc = {
       ],
       list: [
         "Our manufacturing partner, where a query concerns a specific batch and needs to be traced at the facility.",
-        "Service providers who host this site and carry our email, acting on our instructions.",
+        "Service providers who host this site and carry our email, acting on our instructions and only for that purpose.",
         "Regulators or authorities, where we are legally obliged to respond.",
+      ],
+    },
+    {
+      id: "where-it-is-processed",
+      heading: "Where it is processed",
+      body: [
+        "Some of the service providers who host this site and deliver our email operate servers outside India, so a message you send us may be processed abroad on our behalf. We use them only to run the site and carry our correspondence, under terms that require them to protect your data and to act on our instructions alone.",
       ],
     },
     {

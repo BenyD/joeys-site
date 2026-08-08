@@ -28,18 +28,21 @@ export const site = {
   supportEmail: "customer.support@ritaandjosfoods.com",
   supportPhone: "+91 96006 16019",
   supportHours: "9.00 am to 6.00 pm",
-  url: "https://ritaandjosfoods.com",
+  /*
+   * The live domain. The www host is canonical: the apex 308-redirects to it,
+   * so metadata, JSON-LD, the sitemap and robots all point at www to match
+   * what actually serves.
+   */
+  url: "https://www.ritaandjosfoods.com",
 
   /*
-   * PLACEHOLDER - the contact form has nowhere to POST yet.
-   *
-   * While `endpoint` is null the form composes a pre-filled email instead of
-   * submitting, so it works today rather than silently swallowing messages.
-   * Set this to a route handler or a form service and the same form starts
-   * POSTing JSON; nothing else needs to change.
+   * The form POSTs to the site's own route handler, which relays through
+   * Resend (see src/app/api/contact/route.ts; needs RESEND_API_KEY in env).
+   * Set back to null and the form falls back to composing a pre-filled email
+   * in the visitor's mail client instead - nothing else needs to change.
    */
   contact: {
-    endpoint: null as string | null,
+    endpoint: "/api/contact" as string | null,
   },
 
   // PLACEHOLDER - no e-commerce yet. Set `enabled: true` once retail links exist and
@@ -47,6 +50,17 @@ export const site = {
   buy: {
     enabled: false,
     links: [] as { label: string; href: string }[],
+  },
+
+  /*
+   * Hidden until real customer quotes exist. The home page's quote carousel
+   * ran on the flavour manifestos, which read as testimonials the brand does
+   * not have yet; the section, its markup and its data all survive behind
+   * this switch, so when genuine quotes (text + name) arrive it comes back by
+   * flipping this and swapping the array. Same pattern as `buy` and `social`.
+   */
+  testimonials: {
+    enabled: false,
   },
 
   /*
@@ -84,7 +98,7 @@ export const site = {
     ],
     fssai: "10020042006892",
     fssaiVerifyUrl: "https://foscos.fssai.gov.in",
-    batchChar: "★",
+    batchChar: "A",
   },
 
   pack: {

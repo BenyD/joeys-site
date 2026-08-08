@@ -16,14 +16,48 @@ export const metadata: Metadata = {
 const { manufacturer: mfr } = site;
 
 const batchChars = [
-  { char: mfr.batchChar, label: "Facility code", lit: true },
+  { char: mfr.batchChar, label: "Facility", lit: true },
+  { char: "3", label: "Date", lit: false },
+  { char: "0", label: "", lit: false },
+  { char: "G", label: "Month", lit: false },
+  { char: "1", label: "Machine", lit: false },
+  { char: "4", label: "", lit: false },
+  { char: "A", label: "Shift", lit: false },
   { char: "2", label: "Year", lit: false },
-  { char: "0", label: "", lit: false },
-  { char: "8", label: "Month", lit: false },
-  { char: "0", label: "", lit: false },
-  { char: "1", label: "Day", lit: false },
-  { char: "0", label: "", lit: false },
-  { char: "1", label: "Batch seq.", lit: false },
+  { char: "6", label: "", lit: false },
+];
+
+const batchKey = [
+  {
+    chars: mfr.batchChar,
+    label: "Manufacturing facility",
+    body: "Which facility made your pack. A is Podaran Snacks, Kangayam, Tamil Nadu.",
+  },
+  {
+    chars: "30",
+    label: "Production date",
+    body: "The day of the month your batch was made.",
+  },
+  {
+    chars: "G",
+    label: "Month of manufacture",
+    body: "Letters run A to L for January to December, so G is July.",
+  },
+  {
+    chars: "14",
+    label: "Packing machine",
+    body: "The number of the machine that filled and sealed your pack.",
+  },
+  {
+    chars: "A",
+    label: "Shift",
+    body: "The shift that ran the batch. A is the day shift.",
+  },
+  {
+    chars: "26",
+    label: "Year of manufacture",
+    body: "The last two digits of the year, so 26 is 2026.",
+  },
 ];
 
 const standards: { icon: Mark; title: string; body: string }[] = [
@@ -40,7 +74,7 @@ const standards: { icon: Mark; title: string; body: string }[] = [
   {
     icon: MarkBatch,
     title: "Full Traceability",
-    body: "The batch code on the back of every pack links directly to the facility, the production date and the batch sequence. You always know where your crisps came from.",
+    body: "The batch code on the back of every pack links directly to the facility, the production date, and the machine and shift that packed it. You always know where your crisps came from.",
   },
 ];
 
@@ -150,9 +184,9 @@ export default function MadePage() {
             How to read your <Accent>batch number</Accent>
           </h2>
           <p className="mt-4 max-w-[62ch] text-[15px] leading-relaxed text-ink/65">
-            Every pack of Joey&rsquo;s carries a batch number printed on the back. The first
-            character tells you exactly which facility made your crisps. Here&rsquo;s how to
-            decode it.
+            Every pack of Joey&rsquo;s carries a batch number printed on the back. Nine
+            characters that tell you exactly where, when and how your crisps were made.
+            Here&rsquo;s how to decode it.
           </p>
 
           <div className="mt-10 overflow-hidden rounded-[16px] border-2 border-ink/10 bg-white/55">
@@ -181,6 +215,23 @@ export default function MadePage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {batchKey.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-[16px] border-2 border-ink/10 bg-white/55 px-5 py-5"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="display grid h-[38px] min-w-[38px] place-items-center rounded-[8px] bg-coral px-2 text-[17px] text-cream">
+                    {item.chars}
+                  </span>
+                  <h3 className="head text-[14px] text-ink">{item.label}</h3>
+                </div>
+                <p className="mt-3 text-[13px] leading-relaxed text-ink/55">{item.body}</p>
+              </div>
+            ))}
           </div>
 
           <div className="mt-6 overflow-hidden rounded-[16px] border-2 border-ink/10">

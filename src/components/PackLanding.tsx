@@ -61,7 +61,33 @@ export function PackLanding() {
     let prev = 0;
     let shown = false;
     let settled = false;
+    /* which endpoint the pack is RESTING in: 0 the hero, 1 the slot. Takeoff
+       used to guess this from `p > 0.5`, which broke on fast scrolls - a fling
+       upward un-lands with p already deep below 0.5, so the clone spawned AT
+       the hero instead of leaving the slot, and the return read as the pack
+       snapping into the card. The resting end is a fact we already know;
+       track it instead of inferring it. */
+    let restAt: 0 | 1 = 0;
+    /* last frame's scroll position, for telling a scrolled journey from a
+       jump (navigation to /#story, a hash link, a Home key). null means no
+       frame has run yet, which is itself a jump: arriving on the page deep
+       enough to land counts. */
+    let lastY: number | null = null;
     const cur = { x: 0, y: 0, k: 1, r: 0 };
+
+    /*
+     * Entrances for jump arrivals. When the visitor scrolls, the pack's
+     * flight from the hero IS the story; but when they arrive by navigation
+     * the same hero flight replayed every time reads as a canned loop. So a
+     * jump arrival enters from the wings instead: stage left, stage right,
+     * or up from below, picked at random per arrival. Offsets are fractions
+     * of the viewport, applied around the slot target.
+     */
+    const WINGS = [
+      { dx: -0.7, dy: 0.12, r: -18 },
+      { dx: 0.7, dy: 0.12, r: 18 },
+      { dx: 0, dy: 0.85, r: -10 },
+    ];
 
     /* the slot starts empty - its pack arrives by flight. Done here rather
        than in the loop so the very first frame cannot show it twice. */
@@ -89,6 +115,13 @@ export function PackLanding() {
       const gate = clamp01((vh * 0.3 - s.top) / (vh * 0.25));
       const p = Math.min(slotP, gate);
 
+      /* more than one and a half viewports between frames is not scrolling,
+         it is a navigation. Tracked before any early return so the next
+         takeoff always has a fresh answer. */
+      const yNow = window.scrollY;
+      const jumped = lastY === null || Math.abs(yNow - lastY) > vh * 1.5;
+      lastY = yNow;
+
       /* hysteresis: once down, stay down until the slot clearly retreats, so
          scroll jitter cannot flick the pack back into the air */
       const isLanded = landedRef.current ? p > 0.9 : p >= 1;
@@ -110,9 +143,14 @@ export function PackLanding() {
          hero rect and only swaps for the original once it has arrived. Hiding
          at p=0 directly is what made the return read as an abrupt snap: the
          hero-side gate collapses fast on the way up, and the eased follower is
-         still well behind the cliff when the cutoff hits. */
+         still well behind the cliff when the cutoff hits.
+
+         The rest check matters: skipping the frame is only right when the pack
+         is already home. An instant jump to the top (Home key, anchor click)
+         can put p at 0 while the pack still rests in the slot, and bailing
+         here would strand it there with the hero left empty. */
       const docking = !isLanded && p <= 0;
-      if (docking && !shown) return;
+      if (docking && !shown && restAt === 0) return;
 
       /* the scroll-derived target in DOCUMENT coordinates: scroll applies to
          the clone 1:1 (no swimming against fast scrolls), easing shapes only
@@ -131,15 +169,32 @@ export function PackLanding() {
       const tr = isLanded || docking ? 0 : Math.sin(p * Math.PI) * -7;
 
       if (!shown) {
-        /* taking off: start from the endpoint the pack is resting in, so it
-           visibly leaves it - the hero when scrolling down, the slot when the
-           un-land threshold sends it back up */
-        const start = at(p > 0.5 ? 1 : 0);
-        Object.assign(cur, { x: start.x, y: start.y, k: start.k, r: 0 });
+        if (jumped && isLanded) {
+          /* arrival by navigation: enter from a random wing near the slot
+             rather than replaying the hero flight, slightly small so the
+             pack grows into its landing */
+          const wing = WINGS[Math.floor(Math.random() * WINGS.length)];
+          Object.assign(cur, {
+            x: tgt.x + wing.dx * window.innerWidth,
+            y: tgt.y + wing.dy * vh,
+            k: tgt.k * 0.82,
+            r: wing.r,
+          });
+        } else {
+          /* taking off mid-scroll: start from the endpoint the pack is
+             actually resting in, so it visibly leaves it no matter how
+             violently the scroll position moved since the last frame */
+          const start = at(restAt);
+          Object.assign(cur, { x: start.x, y: start.y, k: start.k, r: 0 });
+        }
         shown = true;
       } else {
-        /* exponential follower: frame-rate independent, eases every gesture */
-        const a = 1 - Math.exp(-dt / 90);
+        /* exponential follower: frame-rate independent, eases every gesture.
+           The docking approach runs on a slower constant - the return is not
+           scroll-scrubbed like the descent, it is a release, and the extra
+           glide is what makes the arrival read as a landing instead of the
+           pack teleporting the last stretch. */
+        const a = 1 - Math.exp(-dt / (docking ? 150 : 90));
         cur.x += (tgt.x - cur.x) * a;
         cur.y += (tgt.y - cur.y) * a;
         cur.k += (tgt.k - cur.k) * a;
@@ -151,12 +206,28 @@ export function PackLanding() {
         Math.abs(cur.y - tgt.y) < 0.5 &&
         Math.abs(cur.k - tgt.k) < 0.004;
 
+      /* touchdown cushion: the swap is pixel-identical, so the receiving
+         element can afford a small settle right after it takes over - the
+         pack drops the last few pixels into place instead of stopping dead.
+         Runs only in this effect, which reduced motion never enters. */
+      const cushion = (el: HTMLElement) =>
+        el.animate(
+          [
+            { transform: "translateY(-6px)" },
+            { transform: "translateY(1.5px)", offset: 0.72 },
+            { transform: "translateY(0px)" },
+          ],
+          { duration: 300, easing: "cubic-bezier(0.33, 1, 0.68, 1)" },
+        );
+
       if (converged && isLanded) {
         if (!settled) {
           settled = true;
           shown = false;
+          restAt = 1;
           fly.style.opacity = "0";
           slot.style.opacity = "";
+          cushion(slot);
           /* while landed the hero pack stays gone - it lives downstairs now,
              and the hero tile's bottom sliver can still peek into the viewport
              at the landing threshold, which would otherwise show the pack
@@ -169,9 +240,11 @@ export function PackLanding() {
       if (converged && docking) {
         /* home again: swap the clone for the original, pixel-identical */
         shown = false;
+        restAt = 0;
         fly.style.opacity = "0";
         hero.style.opacity = "";
         slot.style.opacity = "0";
+        cushion(hero);
         return;
       }
 

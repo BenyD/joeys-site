@@ -62,7 +62,6 @@ export default function NotFound() {
               <TLink
                 key={f.slug}
                 href={`/flavours/${f.slug}`}
-                morph
                 className="pressable group flex w-[170px] shrink-0 flex-col items-center text-center sm:w-[220px]"
               >
                 <span
@@ -70,7 +69,6 @@ export default function NotFound() {
                   style={{ background: f.ring }}
                 >
                   <Image
-                    data-morph
                     src={f.disc}
                     alt={`Joey's ${f.name} crisps`}
                     width={500}

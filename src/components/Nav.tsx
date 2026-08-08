@@ -13,10 +13,12 @@ const left = [
   { label: "Flavours", href: "/#flavours" },
   { label: "What's inside", href: "/#inside" },
 ];
+/* No plain "Contact" link here: the CTA button IS the contact entry point,
+   and listing both sent two links to the same place from the same cluster.
+   The mobile menu keeps its own "Get in touch" button for the same job. */
 const right = [
   { label: "How it's made", href: "/made" },
   { label: "Our story", href: "/#story" },
-  { label: "Contact", href: "/contact" },
 ];
 
 // Scaled with the bar: 11px links under a 42px button in a 70px bar read as an
@@ -111,7 +113,7 @@ export function Nav() {
             href="/contact"
             className="pressable head group/cta inline-flex min-h-[42px] items-center gap-2 rounded-[10px] border-2 border-gold px-5 text-[13px] uppercase tracking-[0.05em] text-gold hover:bg-gold hover:text-ink"
           >
-            Find Joey&rsquo;s
+            Contact
             <ArrowRight
               weight="bold"
               className="h-3.5 w-3.5 transition-transform duration-[180ms] ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/cta:translate-x-0.5"
