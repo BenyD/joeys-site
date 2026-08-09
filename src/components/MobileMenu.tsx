@@ -56,6 +56,21 @@ export function MobileMenu({
       aria-labelledby={titleId}
       aria-hidden={!open}
       inert={!open ? true : undefined}
+      /*
+       * Named only while open, and that name is load-bearing.
+       *
+       * This sheet lives inside <header>, which is itself named
+       * `persistent-nav` and told not to animate so the bar holds still while
+       * pages slide underneath. Without its own name the open sheet is part
+       * of that frozen snapshot, so tapping a link left the whole menu
+       * hanging over the incoming page as a still image until the transition
+       * ended, then blinking out.
+       *
+       * A named descendant is captured as its own group instead. By the time
+       * the transition commits, this has closed and given the name up, so the
+       * group is old-only: an exit animation, styled in globals.css.
+       */
+      style={{ viewTransitionName: open ? "mobile-menu" : undefined }}
       className={`fixed inset-x-0 bottom-0 top-[70px] z-40 overflow-y-auto overscroll-contain bg-ink transition-[opacity,transform] duration-[280ms] ease-[cubic-bezier(0.32,0.72,0,1)] lg:hidden ${
         open
           ? "pointer-events-auto translate-y-0 opacity-100"

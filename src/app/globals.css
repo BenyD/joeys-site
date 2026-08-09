@@ -444,6 +444,31 @@ html[data-vt="lateral"]::view-transition-new(root) {
   animation: none;
 }
 
+/*
+ * The mobile sheet leaves under its own steam.
+ *
+ * It is a child of the nav, so without a name of its own it would be part of
+ * that frozen snapshot and an open menu would hang over the incoming page for
+ * the whole transition. MobileMenu.tsx names it while open; by capture time
+ * the tap has closed it, so this group is old-only and this is its exit. It
+ * retreats upward into the bar it belongs to, matching the way the sheet
+ * closes normally, and clears well before the page finishes arriving.
+ *
+ * Under the nav (100) but over the page, so the bar stays put on top.
+ */
+::view-transition-group(mobile-menu) {
+  z-index: 90;
+}
+::view-transition-old(mobile-menu) {
+  animation: vt-menu-exit 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes vt-menu-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
 /* ═══════════════════════════════════════════════════
    Splash
    First-visit curtain, once per tab session. See src/components/Splash.tsx
