@@ -334,7 +334,7 @@ export default function Home() {
               delay={60}
               className="display max-w-[16ch] text-[clamp(2rem,7vw,3.4rem)] text-ink"
             >
-              Simple things, <Accent>done properly</Accent>
+              Simple things, <Accent>curated well</Accent>
             </Reveal>
             <Reveal delay={120} className="flex gap-3.5">
               <MarkPlate className="h-8 w-8 shrink-0" />

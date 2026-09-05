@@ -4,7 +4,6 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { NavigationTransitions } from "@/components/ViewTransitions";
-import { Splash } from "@/components/Splash";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -55,6 +54,7 @@ const organizationLd = {
   description: site.description,
   url: site.url,
   logo: `${site.url}/joeys-logo.png`,
+  sameAs: site.social.enabled ? site.social.links.map((s) => s.href) : undefined,
   contactPoint: {
     "@type": "ContactPoint",
     contactType: "customer support",
@@ -82,30 +82,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     // spec's own rule applies: a "top" fragment matching nothing means the top
     // of the document. Well defined everywhere, and it is what the footer link
     // falls back to before JS loads.
-    // suppressHydrationWarning: the splash gate script writes data-splash-seen
-    // onto <html> before hydration on repeat visits. That mismatch is the whole
-    // point, and React leaving the attribute alone is exactly what we want.
     <html
       lang="en"
-      suppressHydrationWarning
       className={`${anton.variable} ${bricolage.variable} ${figtree.variable} h-full antialiased`}
     >
       <head>
-        {/* Runs before first paint: a repeat visit hides the splash via CSS
-            before it can flash. The component then unmounts it on hydration. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{sessionStorage.getItem('joeys-splash-seen')&&(document.documentElement.dataset.splashSeen='1')}catch(e){}",
-          }}
-        />
         {/* Without JS the scroll reveals would never fire, so show everything
-            up front; and nothing could ever dismiss the splash, so drop it. */}
+            up front. */}
         <noscript>
           <style
             dangerouslySetInnerHTML={{
               __html:
-                "[data-reveal]{opacity:1!important;transform:none!important;filter:none!important}#splash{display:none}",
+                "[data-reveal]{opacity:1!important;transform:none!important;filter:none!important}",
             }}
           />
         </noscript>
@@ -113,7 +101,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-full bg-frame">
         <JsonLd data={organizationLd} />
         <JsonLd data={webSiteLd} />
-        <Splash />
         {/*
           The reference frames the whole page as an inset card on its darkest
           colour. Padding has to be even on all four sides: with no top padding

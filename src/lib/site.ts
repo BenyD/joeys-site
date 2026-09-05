@@ -64,17 +64,14 @@ export const site = {
   },
 
   /*
-   * Hidden for now - the accounts do not exist yet, so the footer column was
-   * four links to "#". Set `enabled: true` and fill in the hrefs and the column
-   * comes back on its own; the footer grid adapts to it. Same pattern as `buy`.
+   * Live accounts. The footer Social column follows this list; JSON-LD
+   * `sameAs` does too. Drop a network by removing its row.
    */
   social: {
-    enabled: false,
+    enabled: true,
     links: [
-      { label: "Instagram", href: "#" }, // PLACEHOLDER
-      { label: "Facebook", href: "#" }, // PLACEHOLDER
-      { label: "X", href: "#" }, // PLACEHOLDER
-      { label: "LinkedIn", href: "#" }, // PLACEHOLDER
+      { label: "Instagram", href: "https://www.instagram.com/joeys_in" },
+      { label: "LinkedIn", href: "https://www.linkedin.com/company/joeys-1" },
     ],
   },
 

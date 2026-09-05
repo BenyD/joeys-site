@@ -3,6 +3,7 @@ import { TLink } from "./ViewTransitions";
 import { flavours } from "@/lib/flavours";
 import { site } from "@/lib/site";
 import { BackToTop } from "./BackToTop";
+import { InstagramLogo, LinkedinLogo, type Icon } from "./icons";
 
 const columns = [
   {
@@ -30,11 +31,14 @@ const columns = [
 ];
 
 /*
- * Three link columns, maximum. A fourth pushed Social onto its own row and left
- * the footer with a hole in it. Terms and Privacy already sit in the bottom bar
- * where people look for them, and "Manufacturing" was a second name for
- * "How it's made", so the Legal column was repetition rather than navigation.
+ * Legal stays in the bottom bar. Social is a fourth column when accounts
+ * exist; the grid on this footer widens to fit it.
  */
+
+const socialIcons: Record<string, Icon> = {
+  Instagram: InstagramLogo,
+  LinkedIn: LinkedinLogo,
+};
 
 const linkCls =
   "text-[13.5px] text-cream/55 transition-colors duration-[180ms] hover:text-gold sm:text-[13px]";
@@ -88,13 +92,28 @@ export function Footer() {
                 Social
               </h3>
               <ul className="space-y-3 sm:space-y-2.5">
-                {site.social.links.map((s) => (
-                  <li key={s.label}>
-                    <a href={s.href} className={linkCls}>
-                      {s.label}
-                    </a>
-                  </li>
-                ))}
+                {site.social.links.map((s) => {
+                  const Glyph = socialIcons[s.label];
+                  return (
+                    <li key={s.label}>
+                      <a
+                        href={s.href}
+                        target="_blank"
+                        rel="me noopener noreferrer"
+                        className={`${linkCls} inline-flex items-center gap-2.5`}
+                      >
+                        {Glyph ? (
+                          <Glyph
+                            weight="fill"
+                            className="h-4 w-4 shrink-0 text-gold"
+                            aria-hidden
+                          />
+                        ) : null}
+                        {s.label}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}

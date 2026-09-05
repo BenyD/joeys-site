@@ -36,7 +36,6 @@ src/lib/site.ts        brand facts, contact details, feature switches
 src/lib/flavours.ts    the three flavours: copy, colours, artwork
 src/lib/legal.ts       legal page content as structured data
 src/components/        marks.tsx holds the hand-drawn brand illustrations
-src/components/Splash.tsx  first-visit splash + loading screen, once per tab session
 public/packs/          pack shots, background removed, plus circular crops
 public/ingredients/    ingredient photography (CC0, see CREDITS.md)
 ```
@@ -68,7 +67,7 @@ Everything below is marked `PLACEHOLDER` at its use site.
 | Contact form sending | `src/app/api/contact/route.ts` | Wired to Resend; needs `RESEND_API_KEY` in env. Testing runs on the sandbox sender with `CONTACT_TO` pointed at the account owner; launch needs the domain verified in Resend, `CONTACT_FROM` set and `CONTACT_TO` removed |
 | Legal review | `src/lib/legal.ts` | Draft banner removed at client request, but the text has not been lawyer-reviewed and the grievance officer still needs a named individual |
 | Customer testimonials | `src/lib/site.ts` | Collection is live: the "Share your experience" topic on the contact form takes stars, city and consent, and emails the desk. Section is hidden behind `testimonials.enabled` until real quotes replace the flavour copy in `page.tsx`. Nothing publishes automatically, and nothing publishes without consent |
-| Social links | `src/lib/site.ts` | All `#` |
+| Social links | `src/lib/site.ts` | Instagram and LinkedIn are live in the footer |
 
 Resolved since: support email and phone are real (`contactReady` guards a
 regression), the domain is live at `https://www.ritaandjosfoods.com` (www is

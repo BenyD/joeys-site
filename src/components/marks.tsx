@@ -219,9 +219,8 @@ export function MarkCertificate(props: MarkProps) {
    bacon in turn; the slice-plus-bite silhouette is the one that survives
    being 30px tall.
 
-   Takes a `fill` so the splash can deal one crisp per flavour in that
-   flavour's ring colour; the default keeps the house gold. Still one fill
-   per mark either way. */
+   Takes a `fill` so a marquee can colour the crisp to its band; the default
+   keeps the house gold. Still one fill per mark either way. */
 export function MarkCrisp({ fill = "#f5b921", ...props }: MarkProps & { fill?: string }) {
   return (
     <Svg {...props}>

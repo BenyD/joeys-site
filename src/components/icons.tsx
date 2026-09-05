@@ -34,6 +34,8 @@ export {
   CaretLeft,
   ArrowUp,
   CaretDoubleUp,
+  InstagramLogo,
+  LinkedinLogo,
 } from "@phosphor-icons/react/dist/ssr";
 
 import type { ComponentProps, ComponentType } from "react";

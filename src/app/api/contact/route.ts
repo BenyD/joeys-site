@@ -98,6 +98,8 @@ export async function POST(req: Request) {
   });
 
   if (!res.ok) {
+    const detail = await res.text();
+    console.error("Resend send failed:", res.status, detail);
     return NextResponse.json({ error: "Send failed." }, { status: 502 });
   }
   return NextResponse.json({ ok: true });
